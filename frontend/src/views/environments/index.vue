@@ -1,0 +1,299 @@
+<template>
+  <div class="environments-page">
+    <div class="page-header">
+      <h2>环境变量管理</h2>
+      <el-button type="primary" @click="showCreateDialog = true">
+        <el-icon><Plus /></el-icon>创建环境
+      </el-button>
+    </div>
+
+    <el-row :gutter="20">
+      <el-col :span="8" v-for="env in environments" :key="env.id">
+        <el-card class="environment-card" :class="{ 'is-default': env.is_default }">
+          <template #header>
+            <div class="card-header">
+              <span class="env-name">
+                {{ env.name }}
+                <el-tag v-if="env.is_default" type="success" size="small">默认</el-tag>
+              </span>
+              <el-dropdown>
+                <el-icon class="more-icon"><More /></el-icon>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item @click="setDefault(env)">设为默认</el-dropdown-item>
+                    <el-dropdown-item @click="editEnvironment(env)">编辑</el-dropdown-item>
+                    <el-dropdown-item @click="deleteEnvironment(env)">删除</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </div>
+          </template>
+          <div class="env-description">{{ env.description || '暂无描述' }}</div>
+          <div class="env-stats">
+            <el-tag type="info">{{ env.variable_count }} 个变量</el-tag>
+          </div>
+          <div class="env-actions">
+            <el-button type="primary" link @click="manageVariables(env)">管理变量</el-button>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
+
+    <!-- 创建/编辑环境对话框 -->
+    <el-dialog v-model="showCreateDialog" :title="isEdit ? '编辑环境' : '创建环境'" width="500px">
+      <el-form :model="envForm" label-width="100px">
+        <el-form-item label="环境名称">
+          <el-input v-model="envForm.name" placeholder="输入环境名称" />
+        </el-form-item>
+        <el-form-item label="环境描述">
+          <el-input v-model="envForm.description" type="textarea" placeholder="输入环境描述" />
+        </el-form-item>
+        <el-form-item label="设为默认">
+          <el-switch v-model="envForm.is_default" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showCreateDialog = false">取消</el-button>
+        <el-button type="primary" @click="saveEnvironment" :loading="saving">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 变量管理对话框 -->
+    <el-dialog v-model="showVariableDialog" title="变量管理" width="700px">
+      <div class="variable-actions">
+        <el-button type="primary" size="small" @click="addVariable">
+          <el-icon><Plus /></el-icon>添加变量
+        </el-button>
+      </div>
+      <el-table :data="currentVariables" style="width: 100%">
+        <el-table-column prop="name" label="变量名" width="150" />
+        <el-table-column prop="value" label="变量值">
+          <template #default="{ row }">
+            <span v-if="row.var_type === 'secret'">******</span>
+            <span v-else>{{ row.value }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="var_type" label="类型" width="100">
+          <template #default="{ row }">
+            <el-tag size="small">{{ getVarTypeText(row.var_type) }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="150">
+          <template #default="{ row, $index }">
+            <el-button link type="primary" @click="editVariable(row, $index)">编辑</el-button>
+            <el-button link type="danger" @click="deleteVariable($index)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <template #footer>
+        <el-button @click="showVariableDialog = false">关闭</el-button>
+        <el-button type="primary" @click="saveVariables" :loading="savingVariables">保存变量</el-button>
+      </template>
+    </el-dialog>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Plus, More } from '@element-plus/icons-vue'
+import { environmentApi } from '@/api'
+
+const loading = ref(false)
+const environments = ref([])
+const showCreateDialog = ref(false)
+const showVariableDialog = ref(false)
+const isEdit = ref(false)
+const saving = ref(false)
+const savingVariables = ref(false)
+const currentEnv = ref(null)
+const currentVariables = ref([])
+
+const envForm = ref({
+  name: '',
+  description: '',
+  is_default: false
+})
+
+// 调用 API 获取环境列表
+onMounted(() => {
+  fetchEnvironments()
+})
+
+const fetchEnvironments = async () => {
+  try {
+    loading.value = true
+    const data = await environmentApi.list()
+    environments.value = data.results || data
+  } catch (error) {
+    console.error('Failed to fetch environments:', error)
+    ElMessage.error('获取环境列表失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+const getVarTypeText = (type) => {
+  const map = { 'text': '文本', 'secret': '敏感', 'reference': '引用' }
+  return map[type] || type
+}
+
+const saveEnvironment = async () => {
+  try {
+    saving.value = true
+    if (isEdit.value) {
+      await environmentApi.update(currentEnv.value.id, envForm.value)
+      ElMessage.success('更新成功')
+    } else {
+      await environmentApi.create(envForm.value)
+      ElMessage.success('创建成功')
+    }
+    showCreateDialog.value = false
+    fetchEnvironments()
+  } catch (error) {
+    console.error('Save environment error:', error)
+    ElMessage.error(error.message || '操作失败')
+  } finally {
+    saving.value = false
+  }
+}
+
+const editEnvironment = (env) => {
+  isEdit.value = true
+  envForm.value = { ...env }
+  showCreateDialog.value = true
+}
+
+const deleteEnvironment = async (env) => {
+  try {
+    await ElMessageBox.confirm('确定要删除该环境吗？', '提示', { type: 'warning' })
+    await environmentApi.delete(env.id)
+    ElMessage.success('删除成功')
+    fetchEnvironments()
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('Delete environment error:', error)
+      ElMessage.error(error.message || '删除失败')
+    }
+  }
+}
+
+const setDefault = async (env) => {
+  try {
+    await environmentApi.setDefault(env.id)
+    ElMessage.success('设置成功')
+    fetchEnvironments()
+  } catch (error) {
+    console.error('Set default environment error:', error)
+    ElMessage.error(error.message || '设置失败')
+  }
+}
+
+const manageVariables = async (env) => {
+  currentEnv.value = env
+  // 获取环境详情以获取变量列表
+  try {
+    const detail = await environmentApi.get(env.id)
+    currentVariables.value = detail.variables || []
+  } catch (error) {
+    console.error('Failed to fetch environment details:', error)
+    currentVariables.value = []
+  }
+  showVariableDialog.value = true
+}
+
+const addVariable = () => {
+  currentVariables.value.push({
+    name: '',
+    value: '',
+    var_type: 'text',
+    scope: 'global'
+  })
+}
+
+const editVariable = (row, index) => {
+  // 编辑逻辑
+}
+
+const deleteVariable = (index) => {
+  currentVariables.value.splice(index, 1)
+}
+
+const saveVariables = async () => {
+  if (!currentEnv.value) return
+  
+  savingVariables.value = true
+  try {
+    // 更新环境信息，包括变量列表
+    await environmentApi.update(currentEnv.value.id, {
+      ...currentEnv.value,
+      variables: currentVariables.value
+    })
+    ElMessage.success('保存成功')
+    showVariableDialog.value = false
+    fetchEnvironments()
+  } catch (error) {
+    console.error('Save variables error:', error)
+    ElMessage.error(error.message || '保存失败')
+  } finally {
+    savingVariables.value = false
+  }
+}
+</script>
+
+<style scoped>
+.environments-page {
+  padding: 20px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.page-header h2 {
+  margin: 0;
+}
+
+.environment-card {
+  margin-bottom: 20px;
+}
+
+.environment-card.is-default {
+  border: 2px solid #67c23a;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.env-name {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.more-icon {
+  cursor: pointer;
+  padding: 4px;
+}
+
+.env-description {
+  color: #666;
+  margin-bottom: 15px;
+  min-height: 40px;
+}
+
+.env-stats {
+  margin-bottom: 15px;
+}
+
+.variable-actions {
+  margin-bottom: 15px;
+}
+</style>

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>压测管理平台 - 演示</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <script src="https://unpkg.com/element-plus"></script>
+    <script src="https://unpkg.com/@element-plus/icons-vue"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .login-container {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .login-box { width: 400px; }
+        .layout-container { height: 100vh; }
+        .sidebar { background: #304156; }
+        .logo {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+            border-bottom: 1px solid #1f2d3d;
+        }
+        .header {
+            background: #fff;
+            box-shadow: 0 1px 4px rgba(0,21,41,.08);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 20px;
+        }
+        .main-content { background: #f0f2f5; padding: 20px; }
+        .stat-card { text-align: center; padding: 20px; }
+        .stat-value { font-size: 32px; font-weight: bold; color: #409EFF; }
+        .stat-label { font-size: 14px; color: #666; margin-top: 10px; }
+        .mt-20 { margin-top: 20px; }
+        .fade-enter-active, .fade-leave-active { transition: opacity 0.3s; }
+        .fade-enter-from, .fade-leave-to { opacity: 0; }
+        .menu-icon { margin-right: 8px; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <transition name="fade" mode="out-in">
+            <login-page v-if="!isLoggedIn" @login="handleLogin"></login-page>
+            <layout-page v-else @logout="handleLogout" :user="userInfo"></layout-page>
+        </transition>
+    </div>
+
+    <script>
+        const { createApp, ref, reactive } = Vue;
+        const { ElMessage } = ElementPlus;
+
+        // 登录页面
+        const LoginPage = {
+            template: `
+                <div class="login-container">
+                    <el-card class="login-box">
+                        <h2 style="text-align: center; margin-bottom: 30px;">压测管理平台</h2>
+                        <el-form :model="form" @submit.prevent="handleSubmit">
+                            <el-form-item>
+                                <el-input v-model="form.username" placeholder="用户名" prefix-icon="User" size="large"></el-input>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-input v-model="form.password" type="password" placeholder="密码" prefix-icon="Lock" size="large"></el-input>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-button type="primary" size="large" style="width: 100%" @click="handleSubmit" :loading="loading">登录</el-button>
+                            </el-form-item>
+                        </el-form>
+                    </el-card>
+                </div>
+            `,
+            setup(props, { emit }) {
+                const form = reactive({ username: 'admin', password: 'admin123' });
+                const loading = ref(false);
+                const handleSubmit = () => {
+                    loading.value = true;
+                    setTimeout(() => {
+                        loading.value = false;
+                        emit('login', { username: form.username });
+                    }, 500);
+                };
+                return { form, loading, handleSubmit };
+            }
+        };
+
+        // 布局页面
+        const LayoutPage = {
+            template: `
+                <el-container class="layout-container">
+                    <el-aside width="200px" class="sidebar">
+                        <div class="logo">压测平台</div>
+                        <el-menu :default-active="activeMenu" @select="handleSelect" 
+                                 background-color="#304156" text-color="#bfcbd9" 
+                                 active-text-color="#409EFF" style="border: none;">
+                            <el-menu-item index="dashboard">
+                                <el-icon class="menu-icon"><Monitor /></el-icon>
+                                <span>仪表盘</span>
+                            </el-menu-item>
+                            <el-menu-item index="scenarios">
+                                <el-icon class="menu-icon"><List /></el-icon>
+                                <span>场景管理</span>
+                            </el-menu-item>
+                            <el-menu-item index="reports">
+                                <el-icon class="menu-icon"><Document /></el-icon>
+                                <span>报告管理</span>
+                            </el-menu-item>
+                            <el-menu-item index="environments">
+                                <el-icon class="menu-icon"><Setting /></el-icon>
+                                <span>环境变量</span>
+                            </el-menu-item>
+                            <el-menu-item index="datasources">
+                                <el-icon class="menu-icon"><Histogram /></el-icon>
+                                <span>数据源</span>
+                            </el-menu-item>
+                            <el-menu-item index="apitests">
+                                <el-icon class="menu-icon"><Connection /></el-icon>
+                                <span>接口测试</span>
+                            </el-menu-item>
+                        </el-menu>
+                    </el-aside>
+                    <el-container>
+                        <el-header class="header" height="60px">
+                            <el-dropdown @command="handleCommand">
+                                <span style="cursor: pointer; color: #606266;">
+                                    {{ user.username }} <el-icon><ArrowDown /></el-icon>
+                                </span>
+                                <template #dropdown>
+                                    <el-dropdown-menu>
+                                        <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </template>
+                            </el-dropdown>
+                        </el-header>
+                        <el-main class="main-content">
+                            <component :is="currentView"></component>
+                        </el-main>
+                    </el-container>
+                </el-container>
+            `,
+            props: ['user'],
+            setup(props, { emit }) {
+                const activeMenu = ref('dashboard');
+                const currentView = ref('dashboard-view');
+                
+                const viewMap = {
+                    'dashboard': 'dashboard-view',
+                    'scenarios': 'scenarios-view',
+                    'reports': 'reports-view',
+                    'environments': 'environments-view',
+                    'datasources': 'datasources-view',
+                    'apitests': 'apitests-view'
+                };
+                
+                const handleSelect = (index) => { 
+                    activeMenu.value = index;
+                    currentView.value = viewMap[index];
+                };
+                const handleCommand = (cmd) => { 
+                    if (cmd === 'logout') emit('logout'); 
+                };
+                return { activeMenu, currentView, handleSelect, handleCommand };
+            }
+        };
+
+        // 仪表盘
+        const DashboardView = {
+            template: `
+                <div>
+                    <el-row :gutter="20">
+                        <el-col :span="6">
+                            <el-card class="stat-card">
+                                <div class="stat-value">12</div>
+                                <div class="stat-label">场景数量</div>
+                            </el-card>
+                        </el-col>
+                        <el-col :span="6">
+                            <el-card class="stat-card">
+                                <div class="stat-value">48</div>
+                                <div class="stat-label">报告数量</div>
+                            </el-card>
+                        </el-col>
+                        <el-col :span="6">
+                            <el-card class="stat-card">
+                                <div class="stat-value">5</div>
+                                <div class="stat-label">数据源</div>
+                            </el-card>
+                        </el-col>
+                        <el-col :span="6">
+                            <el-card class="stat-card">
+                                <div class="stat-value">8</div>
+                                <div class="stat-label">测试套件</div>
+                            </el-card>
+                        </el-col>
+                    </el-row>
+                    <el-card class="mt-20">
+                        <template #header>最近压测报告</template>
+                        <el-table :data="reports" style="width: 100%">
+                            <el-table-column prop="name" label="报告名称" />
+                            <el-table-column prop="scenario" label="场景" width="120" />
+                            <el-table-column prop="status" label="状态" width="100">
+                                <template #default="{ row }">
+                                    <el-tag :type="row.status === 'completed' ? 'success' : 'primary'">{{ row.status }}</el-tag>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="time" label="时间" width="180" />
+                        </el-table>
+                    </el-card>
+                </div>
+            `,
+            setup() {
+                const reports = ref([
+                    { name: '压测报告 #1', scenario: '登录场景', status: 'completed', time: '2026-02-15 10:30' },
+                    { name: '压测报告 #2', scenario: '订单场景', status: 'running', time: '2026-02-15 10:25' }
+                ]);
+                return { reports };
+            }
+        };
+
+        // 场景管理
+        const ScenariosView = {
+            template: `
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2>场景管理</h2>
+                        <div>
+                            <el-button type="primary">导入 HAR</el-button>
+                            <el-button type="success">创建场景</el-button>
+                        </div>
+                    </div>
+                    <el-card>
+                        <el-table :data="scenarios" style="width: 100%">
+                            <el-table-column prop="name" label="场景名称" />
+                            <el-table-column prop="description" label="描述" />
+                            <el-table-column prop="requests" label="请求数" width="100" />
+                            <el-table-column label="操作" width="300">
+                                <template #default>
+                                    <el-button link type="primary">运行</el-button>
+                                    <el-button link type="primary">编辑</el-button>
+                                    <el-button link type="primary">复制</el-button>
+                                    <el-button link type="danger">删除</el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </el-card>
+                </div>
+            `,
+            setup() {
+                const scenarios = ref([
+                    { name: '登录场景', description: '用户登录接口压测', requests: 3 },
+                    { name: '订单场景', description: '下单流程压测', requests: 5 }
+                ]);
+                return { scenarios };
+            }
+        };
+
+        // 报告管理
+        const ReportsView = {
+            template: `
+                <div>
+                    <h2 style="margin-bottom: 20px;">报告管理</h2>
+                    <el-card>
+                        <el-table :data="reports" style="width: 100%">
+                            <el-table-column prop="name" label="报告名称" />
+                            <el-table-column prop="scenario" label="场景" width="120" />
+                            <el-table-column prop="status" label="状态" width="100">
+                                <template #default="{ row }">
+                                    <el-tag :type="row.status === 'completed' ? 'success' : row.status === 'running' ? 'primary' : 'danger'">
+                                        {{ row.status }}
+                                    </el-tag>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="users" label="并发数" width="100" />
+                            <el-table-column prop="success_rate" label="成功率" width="100" />
+                            <el-table-column prop="rps" label="RPS" width="100" />
+                            <el-table-column label="操作" width="200">
+                                <template #default>
+                                    <el-button link type="primary">查看</el-button>
+                                    <el-button link type="danger">删除</el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </el-card>
+                </div>
+            `,
+            setup() {
+                const reports = ref([
+                    { name: '压测报告 #1', scenario: '登录场景', status: 'completed', users: 100, success_rate: '98.5%', rps: 150 },
+                    { name: '压测报告 #2', scenario: '订单场景', status: 'running', users: 50, success_rate: '-', rps: '-' }
+                ]);
+                return { reports };
+            }
+        };
+
+        // 环境变量
+        const EnvironmentsView = {
+            template: `
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2>环境变量管理</h2>
+                        <el-button type="primary">创建环境</el-button>
+                    </div>
+                    <el-row :gutter="20">
+                        <el-col :span="8" v-for="env in environments" :key="env.id">
+                            <el-card style="margin-bottom: 20px;" :style="env.is_default ? 'border: 2px solid #67c23a;' : ''">
+                                <template #header>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span style="font-weight: bold;">{{ env.name }}</span>
+                                        <el-tag v-if="env.is_default" type="success" size="small">默认</el-tag>
+                                    </div>
+                                </template>
+                                <p style="color: #666; margin-bottom: 15px;">{{ env.description }}</p>
+                                <el-tag type="info">{{ env.variables }} 个变量</el-tag>
+                            </el-card>
+                        </el-col>
+                    </el-row>
+                </div>
+            `,
+            setup() {
+                const environments = ref([
+                    { id: 1, name: '开发环境', description: '本地开发环境', variables: 5, is_default: true },
+                    { id: 2, name: '测试环境', description: 'QA测试环境', variables: 3, is_default: false },
+                    { id: 3, name: '生产环境', description: '线上生产环境', variables: 4, is_default: false }
+                ]);
+                return { environments };
+            }
+        };
+
+        // 数据源
+        const DatasourcesView = {
+            template: `
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2>数据源管理</h2>
+                        <el-button type="primary">创建数据源</el-button>
+                    </div>
+                    <el-card>
+                        <el-table :data="datasources" style="width: 100%">
+                            <el-table-column prop="name" label="数据源名称" />
+                            <el-table-column prop="type" label="类型" width="120">
+                                <template #default="{ row }">
+                                    <el-tag>{{ row.type }}</el-tag>
+                                </template>
+                            </el-table-column>
+                            <el-table-column prop="count" label="数据量" width="100" />
+                            <el-table-column label="操作" width="250">
+                                <template #default>
+                                    <el-button link type="primary">预览</el-button>
+                                    <el-button link type="primary">测试</el-button>
+                                    <el-button link type="danger">删除</el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </el-card>
+                </div>
+            `,
+            setup() {
+                const datasources = ref([
+                    { name: '用户数据', type: 'CSV', count: 1000 },
+                    { name: '订单数据', type: 'MySQL', count: 5000 }
+                ]);
+                return { datasources };
+            }
+        };
+
+        // 接口测试
+        const ApiTestsView = {
+            template: `
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2>接口测试</h2>
+                        <el-button type="primary">快速测试</el-button>
+                    </div>
+                    <el-row :gutter="20">
+                        <el-col :span="6">
+                            <el-card>
+                                <template #header>测试套件</template>
+                                <el-menu style="border: none;" :default-active="activeSuite">
+                                    <el-menu-item v-for="suite in suites" :key="suite.id" :index="suite.id.toString()">
+                                        {{ suite.name }}
+                                    </el-menu-item>
+                                </el-menu>
+                            </el-card>
+                        </el-col>
+                        <el-col :span="18">
+                            <el-card>
+                                <template #header>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span>测试用例</span>
+                                        <el-button type="primary" size="small">添加用例</el-button>
+                                    </div>
+                                </template>
+                                <el-table :data="testCases" style="width: 100%">
+                                    <el-table-column prop="name" label="用例名称" />
+                                    <el-table-column prop="method" label="方法" width="80">
+                                        <template #default="{ row }">
+                                            <el-tag :type="row.method === 'GET' ? 'success' : 'primary'">{{ row.method }}</el-tag>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column prop="url" label="URL" />
+                                    <el-table-column label="操作" width="150">
+                                        <template #default>
+                                            <el-button link type="primary">运行</el-button>
+                                            <el-button link type="danger">删除</el-button>
+                                        </template>
+                                    </el-table-column>
+                                </el-table>
+                            </el-card>
+                        </el-col>
+                    </el-row>
+                </div>
+            `,
+            setup() {
+                const activeSuite = ref('1');
+                const suites = ref([
+                    { id: 1, name: '用户模块测试' },
+                    { id: 2, name: '订单模块测试' }
+                ]);
+                const testCases = ref([
+                    { name: '获取用户列表', method: 'GET', url: '/api/users' },
+                    { name: '创建用户', method: 'POST', url: '/api/users' }
+                ]);
+                return { activeSuite, suites, testCases };
+            }
+        };
+
+        // 创建应用
+        const app = createApp({
+            components: {
+                LoginPage, LayoutPage, DashboardView, ScenariosView, 
+                ReportsView, EnvironmentsView, DatasourcesView, ApiTestsView
+            },
+            setup() {
+                const isLoggedIn = ref(false);
+                const userInfo = ref({});
+                const handleLogin = (user) => {
+                    userInfo.value = user;
+                    isLoggedIn.value = true;
+                    ElMessage.success('登录成功');
+                };
+                const handleLogout = () => {
+                    isLoggedIn.value = false;
+                    userInfo.value = {};
+                    ElMessage.success('已退出登录');
+                };
+                return { isLoggedIn, userInfo, handleLogin, handleLogout };
+            }
+        });
+
+        // 先注册所有图标组件
+        for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+            app.component(key, component);
+        }
+
+        app.use(ElementPlus);
+        app.mount('#app');
+    </script>
+</body>
+</html>

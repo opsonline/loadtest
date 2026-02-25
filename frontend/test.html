@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>压测平台 - 诊断测试</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <script src="https://unpkg.com/element-plus"></script>
+    <script src="https://unpkg.com/@element-plus/icons-vue"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 4px; }
+        .pass { color: green; }
+        .fail { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>前端诊断测试</h1>
+        
+        <div class="test-section">
+            <h2>1. Vue 3 加载测试</h2>
+            <p :class="vueLoaded ? 'pass' : 'fail'">
+                {{ vueLoaded ? '✅ Vue 3 已加载 (版本: ' + vueVersion + ')' : '❌ Vue 3 未加载' }}
+            </p>
+        </div>
+
+        <div class="test-section">
+            <h2>2. Element Plus 加载测试</h2>
+            <p :class="elementLoaded ? 'pass' : 'fail'">
+                {{ elementLoaded ? '✅ Element Plus 已加载' : '❌ Element Plus 未加载' }}
+            </p>
+            <el-button v-if="elementLoaded" type="primary" @click="testClick">点击测试</el-button>
+            <p v-if="clickCount > 0" class="info">按钮点击次数: {{ clickCount }}</p>
+        </div>
+
+        <div class="test-section">
+            <h2>3. 响应式数据测试</h2>
+            <p :class="reactiveTest ? 'pass' : 'info'">
+                {{ reactiveTest ? '✅ 响应式数据正常' : '等待测试...' }}
+            </p>
+            <el-input v-model="testInput" placeholder="输入测试"></el-input>
+            <p class="info">当前输入: {{ testInput }}</p>
+        </div>
+
+        <div class="test-section">
+            <h2>4. 页面切换测试</h2>
+            <el-radio-group v-model="currentPage">
+                <el-radio-button label="page1">页面 1</el-radio-button>
+                <el-radio-button label="page2">页面 2</el-radio-button>
+            </el-radio-group>
+            <div style="margin-top: 10px; padding: 10px; background: #f5f5f5;">
+                <div v-if="currentPage === 'page1'">
+                    <h3>页面 1 内容</h3>
+                    <p>这是页面 1</p>
+                </div>
+                <div v-if="currentPage === 'page2'">
+                    <h3>页面 2 内容</h3>
+                    <p>这是页面 2</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>5. 完整登录流程测试</h2>
+            <div v-if="!isLoggedIn">
+                <el-input v-model="loginForm.username" placeholder="用户名" style="margin-bottom: 10px;"></el-input>
+                <el-input v-model="loginForm.password" type="password" placeholder="密码" style="margin-bottom: 10px;"></el-input>
+                <el-button type="primary" @click="handleLogin" :loading="loading">登录</el-button>
+            </div>
+            <div v-else>
+                <p class="pass">✅ 登录成功！欢迎 {{ userInfo.username }}</p>
+                <el-button @click="handleLogout">退出</el-button>
+                
+                <h3 style="margin-top: 20px;">菜单测试</h3>
+                <el-menu :default-active="activeMenu" @select="handleMenuSelect" style="width: 200px;">
+                    <el-menu-item index="1">菜单项 1</el-menu-item>
+                    <el-menu-item index="2">菜单项 2</el-menu-item>
+                    <el-menu-item index="3">菜单项 3</el-menu-item>
+                </el-menu>
+                <p class="info">当前选中: {{ activeMenu }}</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>6. 错误信息</h2>
+            <pre v-if="errors.length > 0" style="color: red;">{{ errors.join('\n') }}</pre>
+            <p v-else class="pass">✅ 无 JavaScript 错误</p>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, reactive, onMounted } = Vue;
+        
+        const app = createApp({
+            setup() {
+                const vueLoaded = ref(false);
+                const vueVersion = ref('');
+                const elementLoaded = ref(false);
+                const clickCount = ref(0);
+                const reactiveTest = ref(false);
+                const testInput = ref('');
+                const currentPage = ref('page1');
+                const isLoggedIn = ref(false);
+                const loading = ref(false);
+                const activeMenu = ref('1');
+                const errors = ref([]);
+                
+                const loginForm = reactive({
+                    username: 'admin',
+                    password: 'admin123'
+                });
+                
+                const userInfo = reactive({
+                    username: ''
+                });
+
+                onMounted(() => {
+                    // 测试 Vue
+                    vueLoaded.value = true;
+                    vueVersion.value = Vue.version;
+                    
+                    // 测试 Element Plus
+                    elementLoaded.value = typeof ElementPlus !== 'undefined';
+                    
+                    // 测试响应式
+                    setTimeout(() => {
+                        reactiveTest.value = true;
+                    }, 100);
+                    
+                    // 捕获错误
+                    window.onerror = function(msg, url, line) {
+                        errors.value.push(`${msg} (line ${line})`);
+                        return false;
+                    };
+                });
+
+                const testClick = () => {
+                    clickCount.value++;
+                };
+
+                const handleLogin = () => {
+                    loading.value = true;
+                    setTimeout(() => {
+                        loading.value = false;
+                        isLoggedIn.value = true;
+                        userInfo.username = loginForm.username;
+                    }, 500);
+                };
+
+                const handleLogout = () => {
+                    isLoggedIn.value = false;
+                    userInfo.username = '';
+                };
+
+                const handleMenuSelect = (index) => {
+                    activeMenu.value = index;
+                };
+
+                return {
+                    vueLoaded,
+                    vueVersion,
+                    elementLoaded,
+                    clickCount,
+                    reactiveTest,
+                    testInput,
+                    currentPage,
+                    isLoggedIn,
+                    loading,
+                    loginForm,
+                    userInfo,
+                    activeMenu,
+                    errors,
+                    testClick,
+                    handleLogin,
+                    handleLogout,
+                    handleMenuSelect
+                };
+            }
+        });
+
+        // 注册图标
+        for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+            app.component(key, component);
+        }
+
+        app.use(ElementPlus);
+        app.mount('#app');
+    </script>
+</body>
+</html>
