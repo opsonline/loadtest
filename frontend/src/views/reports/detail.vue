@@ -133,6 +133,17 @@
           <div id="request-response-bar" style="height: 400px;"></div>
         </el-col>
       </el-row>
+      
+      <el-row :gutter="20" style="margin-top: 20px;">
+        <el-col :span="12">
+          <!-- 错误分布图 -->
+          <div id="error-distribution-chart" style="height: 300px;"></div>
+        </el-col>
+        <el-col :span="12">
+          <!-- 请求数分布图 -->
+          <div id="request-count-chart" style="height: 300px;"></div>
+        </el-col>
+      </el-row>
     </el-card>
 
     <el-card class="mt-20">
@@ -246,6 +257,8 @@ const responseTimeChart = ref(null)
 const successRatePieChart = ref(null)
 const responseTimeDistributionChart = ref(null)
 const requestResponseBarChart = ref(null)
+const errorDistributionChart = ref(null)
+const requestCountChart = ref(null)
 
 // 图表数据
 const chartData = ref({
@@ -301,6 +314,12 @@ onUnmounted(() => {
   if (requestResponseBarChart.value) {
     requestResponseBarChart.value.dispose()
   }
+  if (errorDistributionChart.value) {
+    errorDistributionChart.value.dispose()
+  }
+  if (requestCountChart.value) {
+    requestCountChart.value.dispose()
+  }
   // 移除事件监听器
   window.removeEventListener('resize', handleResize)
 })
@@ -320,6 +339,12 @@ const handleResize = () => {
   }
   if (requestResponseBarChart.value) {
     requestResponseBarChart.value.resize()
+  }
+  if (errorDistributionChart.value) {
+    errorDistributionChart.value.resize()
+  }
+  if (requestCountChart.value) {
+    requestCountChart.value.resize()
   }
 }
 
@@ -384,6 +409,54 @@ const updateStatisticalCharts = () => {
           {
             name: 'P99响应时间',
             data: p99ResponseTimes
+          }
+        ]
+      })
+    }
+    
+    // 更新错误分布饼图
+    if (errorDistributionChart.value && report.value.error_distribution) {
+      const errorData = Object.entries(report.value.error_distribution || {}).map(([name, count]) => ({
+        name,
+        value: count
+      }))
+      
+      if (errorData.length > 0) {
+        errorDistributionChart.value.setOption({
+          series: [{
+            data: errorData
+          }]
+        })
+      } else {
+        // 没有错误时显示默认数据
+        errorDistributionChart.value.setOption({
+          series: [{
+            data: [{ name: '无错误', value: 1, itemStyle: { color: '#52c41a' } }]
+          }]
+        })
+      }
+    }
+    
+    // 更新请求数分布柱状图
+    if (requestCountChart.value) {
+      const requestNames = requestStats.value.map(stat => stat.request_name)
+      const requestCounts = requestStats.value.map(stat => stat.num_requests || 0)
+      const failureCounts = requestStats.value.map(stat => stat.num_failures || 0)
+      
+      requestCountChart.value.setOption({
+        xAxis: {
+          data: requestNames
+        },
+        series: [
+          {
+            name: '成功请求',
+            data: requestCounts.map((total, i) => total - failureCounts[i]),
+            itemStyle: { color: '#52c41a' }
+          },
+          {
+            name: '失败请求',
+            data: failureCounts,
+            itemStyle: { color: '#ff4d4f' }
           }
         ]
       })
@@ -575,6 +648,67 @@ const initCharts = () => {
         data: []
       }
     ]
+  })
+  
+  // 初始化错误分布饼图
+  errorDistributionChart.value = echarts.init(document.getElementById('error-distribution-chart'))
+  errorDistributionChart.value.setOption({
+    title: {
+      text: '错误分布',
+      left: 'center'
+    },
+    tooltip: {
+      trigger: 'item',
+      formatter: '{b}: {c} ({d}%)'
+    },
+    legend: {
+      orient: 'vertical',
+      left: 'left'
+    },
+    series: [{
+      name: '错误类型',
+      type: 'pie',
+      radius: '50%',
+      data: [],
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)'
+        }
+      }
+    }]
+  })
+  
+  // 初始化请求数分布柱状图
+  requestCountChart.value = echarts.init(document.getElementById('request-count-chart'))
+  requestCountChart.value.setOption({
+    title: {
+      text: '请求分布',
+      left: 'center'
+    },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      }
+    },
+    xAxis: {
+      type: 'category',
+      data: []
+    },
+    yAxis: {
+      type: 'value',
+      name: '请求数'
+    },
+    series: [{
+      name: '请求数',
+      type: 'bar',
+      data: [],
+      itemStyle: {
+        color: '#409EFF'
+      }
+    }]
   })
 }
 
