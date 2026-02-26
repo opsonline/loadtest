@@ -269,15 +269,22 @@ const chartData = ref({
 
 onMounted(() => {
   fetchReport()
-  // 初始化图表
-  initCharts()
-  
   // 监听窗口大小变化
   window.addEventListener('resize', handleResize)
 })
 
 // 监听窗口大小变化，调整图表尺寸
 const resizeObserver = ref(null)
+
+// 当report数据加载后初始化图表
+watch(report, (newReport) => {
+  if (newReport) {
+    // 等待DOM更新后再初始化图表
+    setTimeout(() => {
+      initCharts()
+    }, 100)
+  }
+}, { immediate: true })
 
 const exportReport = async (type) => {
   try {
