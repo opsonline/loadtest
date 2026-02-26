@@ -39,6 +39,33 @@ class EnvironmentListCreateView(generics.ListCreateAPIView):
         
         serializer.save(created_by=self.request.user)
     
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return Response({
+                'code': 0,
+                'message': 'success',
+                'data': {
+                    'results': serializer.data,
+                    'count': self.paginator.page.paginator.count,
+                    'page': self.paginator.page.number,
+                    'page_size': self.paginator.page.paginator.per_page
+                }
+            })
+        
+        serializer = self.get_serializer(queryset, many=True)
+        return Response({
+            'code': 0,
+            'message': 'success',
+            'data': {
+                'results': serializer.data,
+                'count': len(serializer.data)
+            }
+        })
+    
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

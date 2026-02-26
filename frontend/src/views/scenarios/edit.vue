@@ -122,6 +122,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Plus, Delete } from '@element-plus/icons-vue'
+import { scenarioApi } from '@/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -144,33 +145,30 @@ onMounted(() => {
     isEdit.value = true
     fetchScenario(id)
   } else {
-    // 新建场景，添加一个默认请求
     addRequest()
   }
 })
 
-const fetchScenario = (id) => {
-  // TODO: 调用 API 获取场景详情
-  // 模拟数据
-  form.value = {
-    name: '登录场景',
-    description: '用户登录接口压测',
-    default_users: 10,
-    default_spawn_rate: 1,
-    default_duration: 60,
-    requests: [
-      {
-        name: '登录请求',
-        method: 'POST',
-        url: 'https://api.example.com/login',
-        headersText: '{"Content-Type": "application/json"}',
-        body_type: 'json',
-        body: '{"username": "test", "password": "123456"}',
-        weight: 1,
-        think_time: 1,
-        timeout: 30
-      }
-    ]
+const fetchScenario = async (id) => {
+  try {
+    const data = await scenarioApi.detail(id)
+    form.value = {
+      name: data.name,
+      description: data.description || '',
+      default_users: data.default_users,
+      default_spawn_rate: data.default_spawn_rate,
+      default_duration: data.default_duration,
+      requests: (data.requests || []).map(req => ({
+        ...req,
+        headersText: req.headers ? JSON.stringify(req.headers, null, 2) : ''
+      }))
+    }
+    if (form.value.requests.length > 0) {
+      activeRequests.value = form.value.requests.map((_, i) => i)
+    }
+  } catch (error) {
+    console.error('Failed to fetch scenario:', error)
+    ElMessage.error('获取场景详情失败')
   }
 }
 
@@ -199,36 +197,70 @@ const removeRequest = (index) => {
 }
 
 const saveScenario = async () => {
-  saving.value = true
-  
-  // 转换 headers
-  const requests = form.value.requests.map(req => {
-    let headers = {}
-    try {
-      if (req.headersText) {
-        headers = JSON.parse(req.headersText)
-      }
-    } catch (e) {
-      console.error('Invalid headers JSON:', e)
-    }
-    
-    return {
-      ...req,
-      headers
-    }
-  })
-  
-  const data = {
-    ...form.value,
-    requests
+  if (!form.value.name) {
+    ElMessage.warning('请输入场景名称')
+    saving.value = false
+    return
   }
   
-  // TODO: 调用 API 保存场景
-  setTimeout(() => {
-    ElMessage.success(isEdit.value ? '更新成功' : '创建成功')
+  if (form.value.requests.length === 0) {
+    ElMessage.warning('请至少添加一个请求')
     saving.value = false
+    return
+  }
+  
+  saving.value = true
+  
+  try {
+    // 转换 headers
+    const requests = form.value.requests.map(req => {
+      let headers = {}
+      try {
+        if (req.headersText) {
+          headers = JSON.parse(req.headersText)
+        }
+      } catch (e) {
+        console.error('Invalid headers JSON:', e)
+        headers = {}
+      }
+      
+      return {
+        name: req.name || `Request`,
+        method: req.method,
+        url: req.url,
+        headers: headers,
+        body_type: req.body_type,
+        body: req.body_type !== 'none' ? req.body : null,
+        weight: req.weight,
+        think_time: req.think_time,
+        timeout: req.timeout
+      }
+    })
+    
+    const data = {
+      name: form.value.name,
+      description: form.value.description,
+      default_users: form.value.default_users,
+      default_spawn_rate: form.value.default_spawn_rate,
+      default_duration: form.value.default_duration,
+      requests: requests
+    }
+    
+    if (isEdit.value) {
+      await scenarioApi.update(route.params.id, data)
+      ElMessage.success('更新成功')
+    } else {
+      await scenarioApi.create(data)
+      ElMessage.success('创建成功')
+    }
+    
     router.push('/scenarios')
-  }, 500)
+  } catch (error) {
+    console.error('Failed to save scenario:', error)
+    ElMessage.error(error.message || '保存失败')
+  } finally {
+    saving.value = false
+  }
 }
 </script>
 
