@@ -158,17 +158,87 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { reportApi, websocketUtils } from '@/api'
+import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
+import { reportExportApi } from '@/api'
 
 const route = useRoute()
 const report = ref(null)
 const requestStats = ref([])
 const wsConnection = ref(null)
-const statsUpdate = ref(null)  // 实时统计更新
+const statsUpdate = ref(null)
 const isLiveUpdatesEnabled = ref(false)
+
+const fetchReport = async () => {
+  try {
+    const data = await reportApi.detail(route.params.id)
+    report.value = data
+    
+    // 获取请求统计
+    if (data.id) {
+      try {
+        const statsData = await reportApi.stats(data.id)
+        requestStats.value = Object.entries(statsData.requests || {}).map(([name, stat]) => ({
+          request_name: name,
+          method: stat.method || 'GET',
+          num_requests: stat.num_requests || 0,
+          num_failures: stat.num_failures || 0,
+          avg_response_time: stat.avg_response_time || 0,
+          p95_response_time: stat.p95 || 0,
+          p99_response_time: stat.p99 || 0
+        }))
+      } catch (e) {
+        console.error('Failed to fetch stats:', e)
+      }
+    }
+    
+    // 如果报告正在运行，启动WebSocket连接
+    if (data.status === 'running') {
+      connectWebSocket()
+    }
+  } catch (error) {
+    console.error('Failed to fetch report:', error)
+    ElMessage.error('获取报告详情失败')
+  }
+}
+
+const connectWebSocket = () => {
+  if (wsConnection.value) {
+    wsConnection.value.close()
+  }
+  
+  try {
+    wsConnection.value = websocketUtils.connect(report.value.id)
+    isLiveUpdatesEnabled.value = true
+    
+    wsConnection.value.onmessage = (event) => {
+      const data = JSON.parse(event.data)
+      if (data.type === 'load_test_update') {
+        updateReportWithLiveStats(data)
+        updateChartData(
+          data.timestamp,
+          data.stats?.rps || 0,
+          data.stats?.avg_response_time || 0
+        )
+      }
+    }
+    
+    wsConnection.value.onerror = (error) => {
+      console.error('WebSocket error:', error)
+      isLiveUpdatesEnabled.value = false
+    }
+    
+    wsConnection.value.onclose = () => {
+      isLiveUpdatesEnabled.value = false
+    }
+  } catch (error) {
+    console.error('Failed to connect WebSocket:', error)
+    isLiveUpdatesEnabled.value = false
+  }
+}
 
 // 图表实例
 const rpsChart = ref(null)
