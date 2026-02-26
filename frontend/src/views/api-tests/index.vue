@@ -13,7 +13,7 @@
           <template #header>
             <div class="card-header">
               <span>测试套件</span>
-              <el-button type="primary" link @click="showCreateSuite = true">
+              <el-button type="primary" link @click="openCreateSuite">
                 <el-icon><Plus /></el-icon>
               </el-button>
             </div>
@@ -32,7 +32,7 @@
             <div class="card-header">
               <span>{{ currentSuite?.name || '测试用例' }}</span>
               <div v-if="currentSuite">
-                <el-button type="primary" @click="showCreateCase = true">
+                <el-button type="primary" @click="openCreateCase">
                   <el-icon><Plus /></el-icon>添加用例
                 </el-button>
                 <el-button type="success" @click="runSuite">
@@ -50,7 +50,6 @@
               </template>
             </el-table-column>
             <el-table-column prop="url" label="URL" show-overflow-tooltip />
-            <el-table-column prop="assertion_count" label="断言数" width="100" />
             <el-table-column label="操作" width="200">
               <template #default="{ row }">
                 <el-button link type="primary" @click="runCase(row)">运行</el-button>
@@ -61,7 +60,6 @@
           </el-table>
         </el-card>
 
-        <!-- 测试结果 -->
         <el-card v-if="testResults.length > 0" class="mt-20">
           <template #header>
             <span>测试结果</span>
@@ -71,7 +69,6 @@
               v-for="result in testResults"
               :key="result.id"
               :type="result.status === 'passed' ? 'success' : 'danger'"
-              :icon="result.status === 'passed' ? 'Check' : 'Close'"
             >
               <h4>{{ result.test_case_name }} - {{ result.status === 'passed' ? '通过' : '失败' }}</h4>
               <p>状态码: {{ result.response_status }} | 响应时间: {{ result.response_time }}ms</p>
@@ -81,7 +78,6 @@
       </el-col>
     </el-row>
 
-    <!-- 快速测试对话框 -->
     <el-dialog v-model="showSingleTest" title="快速测试" width="800px">
       <el-form :model="singleTestForm" label-width="80px">
         <el-form-item label="URL">
@@ -109,7 +105,6 @@
         <el-button type="primary" @click="executeSingleTest" :loading="testing">发送请求</el-button>
       </template>
 
-      <!-- 响应结果 -->
       <div v-if="singleTestResult" class="response-section">
         <el-divider />
         <h4>响应结果</h4>
@@ -123,6 +118,51 @@
         <el-input v-model="singleTestResult.response_body" type="textarea" :rows="10" readonly />
       </div>
     </el-dialog>
+
+    <el-dialog v-model="showSuiteDialog" :title="suiteForm.id ? '编辑套件' : '创建套件'" width="500px">
+      <el-form :model="suiteForm" label-width="80px">
+        <el-form-item label="名称" required>
+          <el-input v-model="suiteForm.name" placeholder="输入套件名称" />
+        </el-form-item>
+        <el-form-item label="描述">
+          <el-input v-model="suiteForm.description" type="textarea" placeholder="输入描述" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showSuiteDialog = false">取消</el-button>
+        <el-button type="primary" @click="saveSuite" :loading="saving">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <el-dialog v-model="showCaseDialog" :title="caseForm.id ? '编辑用例' : '创建用例'" width="700px">
+      <el-form :model="caseForm" label-width="80px">
+        <el-form-item label="名称" required>
+          <el-input v-model="caseForm.name" placeholder="输入用例名称" />
+        </el-form-item>
+        <el-form-item label="方法" required>
+          <el-select v-model="caseForm.method" style="width: 120px">
+            <el-option label="GET" value="GET" />
+            <el-option label="POST" value="POST" />
+            <el-option label="PUT" value="PUT" />
+            <el-option label="DELETE" value="DELETE" />
+            <el-option label="PATCH" value="PATCH" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="URL" required>
+          <el-input v-model="caseForm.url" placeholder="https://api.example.com/users" />
+        </el-form-item>
+        <el-form-item label="Headers">
+          <el-input v-model="caseForm.headersText" type="textarea" :rows="3" placeholder='{"Content-Type": "application/json"}' />
+        </el-form-item>
+        <el-form-item label="Body">
+          <el-input v-model="caseForm.body" type="textarea" :rows="5" placeholder="请求体" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showCaseDialog = false">取消</el-button>
+        <el-button type="primary" @click="saveCase" :loading="saving">保存</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -130,17 +170,19 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Position, VideoPlay } from '@element-plus/icons-vue'
+import { apiTestApi } from '@/api'
 
 const loading = ref(false)
+const saving = ref(false)
+const testing = ref(false)
 const suites = ref([])
 const testCases = ref([])
 const testResults = ref([])
 const activeSuite = ref('')
 const currentSuite = ref(null)
 const showSingleTest = ref(false)
-const showCreateSuite = ref(false)
-const showCreateCase = ref(false)
-const testing = ref(false)
+const showSuiteDialog = ref(false)
+const showCaseDialog = ref(false)
 
 const singleTestForm = ref({
   method: 'GET',
@@ -151,17 +193,36 @@ const singleTestForm = ref({
 
 const singleTestResult = ref(null)
 
-// TODO: 调用 API 获取数据
+const suiteForm = ref({
+  id: null,
+  name: '',
+  description: ''
+})
+
+const caseForm = ref({
+  id: null,
+  name: '',
+  method: 'GET',
+  url: '',
+  headersText: '',
+  body: ''
+})
+
 onMounted(() => {
   fetchSuites()
 })
 
-const fetchSuites = () => {
-  // 模拟数据
-  suites.value = [
-    { id: '1', name: '用户模块测试' },
-    { id: '2', name: '订单模块测试' }
-  ]
+const fetchSuites = async () => {
+  try {
+    const data = await apiTestApi.listSuites()
+    suites.value = data.results || data || []
+    if (suites.value.length > 0) {
+      selectSuite(suites.value[0].id)
+    }
+  } catch (error) {
+    console.error('Failed to fetch suites:', error)
+    ElMessage.error('获取测试套件失败')
+  }
 }
 
 const selectSuite = (suiteId) => {
@@ -170,16 +231,17 @@ const selectSuite = (suiteId) => {
   fetchTestCases(suiteId)
 }
 
-const fetchTestCases = (suiteId) => {
+const fetchTestCases = async (suiteId) => {
   loading.value = true
-  // 模拟数据
-  setTimeout(() => {
-    testCases.value = [
-      { id: '1', name: '获取用户列表', method: 'GET', url: '/api/users', assertion_count: 2 },
-      { id: '2', name: '创建用户', method: 'POST', url: '/api/users', assertion_count: 3 }
-    ]
+  try {
+    const data = await apiTestApi.listCases(suiteId)
+    testCases.value = data.results || data || []
+  } catch (error) {
+    console.error('Failed to fetch test cases:', error)
+    ElMessage.error('获取测试用例失败')
+  } finally {
     loading.value = false
-  }, 300)
+  }
 }
 
 const getMethodType = (method) => {
@@ -187,41 +249,179 @@ const getMethodType = (method) => {
   return map[method] || ''
 }
 
-const executeSingleTest = async () => {
-  testing.value = true
-  // TODO: 调用 API 执行测试
-  setTimeout(() => {
-    singleTestResult.value = {
-      status: 'passed',
-      response_status: 200,
-      response_time: 125,
-      response_body: JSON.stringify({ id: 1, name: 'Test User' }, null, 2)
+const openCreateSuite = () => {
+  suiteForm.value = { id: null, name: '', description: '' }
+  showSuiteDialog.value = true
+}
+
+const openCreateCase = () => {
+  caseForm.value = { id: null, name: '', method: 'GET', url: '', headersText: '', body: '' }
+  showCaseDialog.value = true
+}
+
+const saveSuite = async () => {
+  if (!suiteForm.value.name) {
+    ElMessage.warning('请输入套件名称')
+    return
+  }
+  
+  saving.value = true
+  try {
+    if (suiteForm.value.id) {
+      await apiTestApi.updateSuite(suiteForm.value.id, suiteForm.value)
+      ElMessage.success('更新成功')
+    } else {
+      await apiTestApi.createSuite(suiteForm.value)
+      ElMessage.success('创建成功')
     }
+    showSuiteDialog.value = false
+    fetchSuites()
+  } catch (error) {
+    console.error('Failed to save suite:', error)
+    ElMessage.error(error.message || '保存失败')
+  } finally {
+    saving.value = false
+  }
+}
+
+const saveCase = async () => {
+  if (!caseForm.value.name || !caseForm.value.url) {
+    ElMessage.warning('请填写必要字段')
+    return
+  }
+  
+  saving.value = true
+  try {
+    let headers = {}
+    try {
+      if (caseForm.value.headersText) {
+        headers = JSON.parse(caseForm.value.headersText)
+      }
+    } catch (e) {
+      ElMessage.warning('Headers 格式不正确')
+      saving.value = false
+      return
+    }
+    
+    const data = {
+      name: caseForm.value.name,
+      method: caseForm.value.method,
+      url: caseForm.value.url,
+      headers: headers,
+      body: caseForm.value.body || null
+    }
+    
+    if (caseForm.value.id) {
+      await apiTestApi.updateCase(caseForm.value.id, data)
+      ElMessage.success('更新成功')
+    } else {
+      await apiTestApi.createCase(currentSuite.value.id, data)
+      ElMessage.success('创建成功')
+    }
+    showCaseDialog.value = false
+    fetchTestCases(activeSuite.value)
+  } catch (error) {
+    console.error('Failed to save case:', error)
+    ElMessage.error(error.message || '保存失败')
+  } finally {
+    saving.value = false
+  }
+}
+
+const executeSingleTest = async () => {
+  if (!singleTestForm.value.url) {
+    ElMessage.warning('请输入URL')
+    return
+  }
+  
+  testing.value = true
+  singleTestResult.value = null
+  
+  try {
+    let headers = {}
+    try {
+      if (singleTestForm.value.headers) {
+        headers = JSON.parse(singleTestForm.value.headers)
+      }
+    } catch (e) {
+      ElMessage.warning('Headers 格式不正确')
+      testing.value = false
+      return
+    }
+    
+    const result = await apiTestApi.executeRequest({
+      method: singleTestForm.value.method,
+      url: singleTestForm.value.url,
+      headers: headers,
+      body: singleTestForm.value.body || null,
+      assertions: []
+    })
+    
+    singleTestResult.value = result
+  } catch (error) {
+    console.error('Failed to execute test:', error)
+    ElMessage.error(error.message || '执行失败')
+  } finally {
     testing.value = false
-  }, 1000)
+  }
 }
 
 const runCase = async (row) => {
-  // TODO: 调用 API 运行单个用例
-  ElMessage.success('测试完成')
+  try {
+    const result = await apiTestApi.execute({ test_case_id: row.id })
+    if (result.status === 'passed') {
+      ElMessage.success('测试通过')
+    } else {
+      ElMessage.error('测试失败')
+    }
+    
+    testResults.value = [result, ...testResults.value].slice(0, 10)
+  } catch (error) {
+    console.error('Failed to run case:', error)
+    ElMessage.error(error.message || '运行失败')
+  }
 }
 
 const runSuite = async () => {
-  // TODO: 调用 API 运行整个套件
-  ElMessage.success('套件测试完成')
+  if (!currentSuite.value) return
+  
+  try {
+    const results = await apiTestApi.execute({ suite_id: currentSuite.value.id })
+    ElMessage.success('套件测试完成')
+    
+    if (Array.isArray(results)) {
+      testResults.value = [...results, ...testResults.value].slice(0, 10)
+    }
+  } catch (error) {
+    console.error('Failed to run suite:', error)
+    ElMessage.error(error.message || '运行失败')
+  }
 }
 
 const editCase = (row) => {
-  // 编辑用例
+  caseForm.value = {
+    id: row.id,
+    name: row.name,
+    method: row.method,
+    url: row.url,
+    headersText: row.headers ? JSON.stringify(row.headers, null, 2) : '',
+    body: row.body || ''
+  }
+  showCaseDialog.value = true
 }
 
 const deleteCase = async (row) => {
   try {
     await ElMessageBox.confirm('确定要删除该用例吗？', '提示', { type: 'warning' })
-    // TODO: 调用 API 删除
+    await apiTestApi.deleteCase(row.id)
     ElMessage.success('删除成功')
     fetchTestCases(activeSuite.value)
-  } catch {}
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('Failed to delete case:', error)
+      ElMessage.error(error.message || '删除失败')
+    }
+  }
 }
 </script>
 
