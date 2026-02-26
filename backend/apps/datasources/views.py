@@ -112,6 +112,15 @@ class DataSourceDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         return DataSource.objects.filter(created_by=self.request.user, is_active=True)
     
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response({
+            'code': 0,
+            'message': 'success',
+            'data': serializer.data
+        })
+    
     def perform_destroy(self, instance):
         instance.is_active = False
         instance.save()

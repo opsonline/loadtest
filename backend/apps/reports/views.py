@@ -114,6 +114,15 @@ class ReportDetailView(generics.RetrieveDestroyAPIView):
     def get_queryset(self):
         return Report.objects.filter(created_by=self.request.user)
     
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response({
+            'code': 0,
+            'message': 'success',
+            'data': serializer.data
+        })
+    
     def perform_destroy(self, instance):
         # 删除关联文件
         stats_file = instance.stats_file
