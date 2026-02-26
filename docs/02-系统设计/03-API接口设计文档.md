@@ -19,15 +19,6 @@
   "message": "success",
   "data": {
     // 业务数据
-  },
-  "meta": {
-    "pagination": {
-      "total": 100,
-      "page": 1,
-      "page_size": 20,
-      "total_pages": 5
-    },
-    "request_id": "uuid"
   }
 }
 ```
@@ -38,15 +29,7 @@
 {
   "code": 40001,
   "message": "参数验证失败",
-  "errors": [
-    {
-      "field": "email",
-      "message": "邮箱格式不正确"
-    }
-  ],
-  "meta": {
-    "request_id": "uuid"
-  }
+  "data": null
 }
 ```
 
