@@ -2,10 +2,26 @@
   <div class="environments-page">
     <div class="page-header">
       <h2>环境变量管理</h2>
-      <el-button type="primary" @click="showCreateDialog = true">
-        <el-icon><Plus /></el-icon>创建环境
-      </el-button>
+      <div class="header-actions">
+        <el-button @click="importEnvironments">
+          <el-icon><Upload /></el-icon>导入
+        </el-button>
+        <el-button @click="exportEnvironments" :disabled="environments.length === 0">
+          <el-icon><Download /></el-icon>导出
+        </el-button>
+        <el-button type="primary" @click="showCreateDialog = true">
+          <el-icon><Plus /></el-icon>创建环境
+        </el-button>
+      </div>
     </div>
+
+    <input
+      ref="importInput"
+      type="file"
+      accept=".json"
+      style="display: none"
+      @change="handleImportFile"
+    />
 
     <el-row :gutter="20">
       <el-col :span="8" v-for="env in environments" :key="env.id">
@@ -96,8 +112,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, More } from '@element-plus/icons-vue'
+import { Plus, More, Upload, Download } from '@element-plus/icons-vue'
 import { environmentApi } from '@/api'
+import dayjs from 'dayjs'
 
 const loading = ref(false)
 const environments = ref([])
@@ -108,6 +125,7 @@ const saving = ref(false)
 const savingVariables = ref(false)
 const currentEnv = ref(null)
 const currentVariables = ref([])
+const importInput = ref(null)
 
 const envForm = ref({
   name: '',
@@ -224,7 +242,6 @@ const saveVariables = async () => {
   
   savingVariables.value = true
   try {
-    // 更新环境信息，包括变量列表
     await environmentApi.update(currentEnv.value.id, {
       ...currentEnv.value,
       variables: currentVariables.value
@@ -237,6 +254,93 @@ const saveVariables = async () => {
     ElMessage.error(error.message || '保存失败')
   } finally {
     savingVariables.value = false
+  }
+}
+
+const importEnvironments = () => {
+  importInput.value?.click()
+}
+
+const handleImportFile = async (event) => {
+  const file = event.target.files?.[0]
+  if (!file) return
+  
+  try {
+    const text = await file.text()
+    const importData = JSON.parse(text)
+    
+    if (!Array.isArray(importData)) {
+      ElMessage.error('导入文件格式不正确')
+      return
+    }
+    
+    let importCount = 0
+    for (const envData of importData) {
+      if (envData.name) {
+        try {
+          await environmentApi.create({
+            name: envData.name,
+            description: envData.description || '',
+            is_default: false,
+            variables: envData.variables || []
+          })
+          importCount++
+        } catch (e) {
+          console.error('Failed to import environment:', envData.name, e)
+        }
+      }
+    }
+    
+    ElMessage.success(`成功导入 ${importCount} 个环境`)
+    fetchEnvironments()
+  } catch (error) {
+    console.error('Import error:', error)
+    ElMessage.error('导入失败，请检查文件格式')
+  } finally {
+    event.target.value = ''
+  }
+}
+
+const exportEnvironments = async () => {
+  if (environments.value.length === 0) {
+    ElMessage.warning('没有可导出的环境')
+    return
+  }
+  
+  try {
+    const exportData = await Promise.all(
+      environments.value.map(async (env) => {
+        try {
+          const detail = await environmentApi.get(env.id)
+          return {
+            name: env.name,
+            description: env.description,
+            is_default: env.is_default,
+            variables: detail.variables || []
+          }
+        } catch (e) {
+          return {
+            name: env.name,
+            description: env.description,
+            is_default: env.is_default,
+            variables: []
+          }
+        }
+      })
+    )
+    
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `environments_export_${dayjs().format('YYYYMMDD_HHmmss')}.json`
+    link.click()
+    window.URL.revokeObjectURL(url)
+    
+    ElMessage.success('导出成功')
+  } catch (error) {
+    console.error('Export error:', error)
+    ElMessage.error('导出失败')
   }
 }
 </script>
@@ -255,6 +359,11 @@ const saveVariables = async () => {
 
 .page-header h2 {
   margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
 }
 
 .environment-card {
