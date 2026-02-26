@@ -157,6 +157,53 @@
         <el-form-item label="Body">
           <el-input v-model="caseForm.body" type="textarea" :rows="5" placeholder="请求体" />
         </el-form-item>
+        
+        <el-divider>断言规则</el-divider>
+        
+        <div v-for="(assertion, index) in caseForm.assertions" :key="index" class="assertion-item">
+          <el-form :model="assertion" label-width="80px">
+            <el-row :gutter="10">
+              <el-col :span="6">
+                <el-select v-model="assertion.assertion_type" placeholder="断言类型" @change="onAssertionTypeChange(assertion)">
+                  <el-option label="状态码" value="status_code" />
+                  <el-option label="响应时间" value="response_time" />
+                  <el-option label="JSON路径" value="json_path" />
+                  <el-option label="正则匹配" value="regex" />
+                  <el-option label="包含验证" value="contains" />
+                  <el-option label="数值范围" value="numeric_range" />
+                </el-select>
+              </el-col>
+              <el-col :span="6" v-if="assertion.assertion_type === 'status_code'">
+                <el-input v-model="assertion.expected_value" placeholder="如: 200" />
+              </el-col>
+              <el-col :span="6" v-if="assertion.assertion_type === 'response_time'">
+                <el-input v-model="assertion.expected_value" placeholder="最大响应时间(ms)" />
+              </el-col>
+              <el-col :span="6" v-if="['json_path', 'regex', 'contains'].includes(assertion.assertion_type)">
+                <el-input v-model="assertion.target_path" :placeholder="getAssertionPlaceholder(assertion.assertion_type)" />
+              </el-col>
+              <el-col :span="6" v-if="['json_path', 'regex', 'contains'].includes(assertion.assertion_type)">
+                <el-input v-model="assertion.expected_value" placeholder="期望值" />
+              </el-col>
+              <el-col :span="6" v-if="assertion.assertion_type === 'numeric_range'">
+                <el-input v-model="assertion.target_path" placeholder="JSON路径" />
+              </el-col>
+              <el-col :span="3" v-if="assertion.assertion_type === 'numeric_range'">
+                <el-input v-model="assertion.min_value" placeholder="最小值" />
+              </el-col>
+              <el-col :span="3" v-if="assertion.assertion_type === 'numeric_range'">
+                <el-input v-model="assertion.max_value" placeholder="最大值" />
+              </el-col>
+              <el-col :span="2">
+                <el-button type="danger" icon="Delete" circle @click="removeAssertion(index)" />
+              </el-col>
+            </el-row>
+          </el-form>
+        </div>
+        
+        <el-button type="primary" link @click="addAssertion" style="margin-top: 10px;">
+          <el-icon><Plus /></el-icon>添加断言
+        </el-button>
       </el-form>
       <template #footer>
         <el-button @click="showCaseDialog = false">取消</el-button>
@@ -169,7 +216,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Position, VideoPlay } from '@element-plus/icons-vue'
+import { Plus, Position, VideoPlay, Delete } from '@element-plus/icons-vue'
 import { apiTestApi } from '@/api'
 
 const loading = ref(false)
@@ -205,8 +252,18 @@ const caseForm = ref({
   method: 'GET',
   url: '',
   headersText: '',
-  body: ''
+  body: '',
+  assertions: []
 })
+
+const assertionTypes = {
+  status_code: '状态码',
+  response_time: '响应时间',
+  json_path: 'JSON路径',
+  regex: '正则匹配',
+  contains: '包含验证',
+  numeric_range: '数值范围'
+}
 
 onMounted(() => {
   fetchSuites()
@@ -247,6 +304,39 @@ const fetchTestCases = async (suiteId) => {
 const getMethodType = (method) => {
   const map = { 'GET': 'success', 'POST': 'primary', 'PUT': 'warning', 'DELETE': 'danger', 'PATCH': 'info' }
   return map[method] || ''
+}
+
+const getAssertionPlaceholder = (type) => {
+  const map = {
+    json_path: '$.data.id',
+    regex: '正则表达式',
+    contains: '包含的文本'
+  }
+  return map[type] || ''
+}
+
+const addAssertion = () => {
+  caseForm.value.assertions.push({
+    name: '',
+    assertion_type: 'status_code',
+    target_path: '',
+    expected_value: '',
+    operator: 'eq',
+    min_value: null,
+    max_value: null
+  })
+}
+
+const removeAssertion = (index) => {
+  caseForm.value.assertions.splice(index, 1)
+}
+
+const onAssertionTypeChange = (assertion) => {
+  assertion.target_path = ''
+  assertion.expected_value = ''
+  assertion.operator = 'eq'
+  assertion.min_value = null
+  assertion.max_value = null
 }
 
 const openCreateSuite = () => {
@@ -308,7 +398,8 @@ const saveCase = async () => {
       method: caseForm.value.method,
       url: caseForm.value.url,
       headers: headers,
-      body: caseForm.value.body || null
+      body: caseForm.value.body || null,
+      assertions: caseForm.value.assertions.filter(a => a.assertion_type)
     }
     
     if (caseForm.value.id) {
@@ -398,14 +489,15 @@ const runSuite = async () => {
   }
 }
 
-const editCase = (row) => {
+const editCase = async (row) => {
   caseForm.value = {
     id: row.id,
     name: row.name,
     method: row.method,
     url: row.url,
     headersText: row.headers ? JSON.stringify(row.headers, null, 2) : '',
-    body: row.body || ''
+    body: row.body || '',
+    assertions: row.assertions || []
   }
   showCaseDialog.value = true
 }
@@ -460,5 +552,13 @@ const deleteCase = async (row) => {
   display: flex;
   gap: 15px;
   align-items: center;
+}
+
+.assertion-item {
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #e4e7ed;
+  border-radius: 4px;
+  background-color: #f9f9f9;
 }
 </style>
