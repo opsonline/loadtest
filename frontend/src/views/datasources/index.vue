@@ -2,9 +2,14 @@
   <div class="datasources-page">
     <div class="page-header">
       <h2>数据源管理</h2>
-      <el-button type="primary" @click="showCreateDialog = true">
-        <el-icon><Plus /></el-icon>创建数据源
-      </el-button>
+      <div class="header-actions">
+        <el-button @click="exportDatasources" :disabled="datasources.length === 0">
+          <el-icon><Download /></el-icon>导出配置
+        </el-button>
+        <el-button type="primary" @click="showCreateDialog = true">
+          <el-icon><Plus /></el-icon>创建数据源
+        </el-button>
+      </div>
     </div>
 
     <el-card>
@@ -23,7 +28,7 @@
         </el-table-column>
         <el-table-column label="操作" width="250" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="previewData(row)">预览</el-button>
+            <el-button link type="primary" @click="previewDataSource(row)">预览</el-button>
             <el-button link type="primary" @click="testConnection(row)">测试</el-button>
             <el-button link type="primary" @click="editDatasource(row)">编辑</el-button>
             <el-button link type="danger" @click="deleteDatasource(row)">删除</el-button>
@@ -146,7 +151,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, UploadFilled } from '@element-plus/icons-vue'
+import { Plus, UploadFilled, Download } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import { datasourceApi } from '@/api'
 
@@ -302,7 +307,7 @@ const previewDataSource = async (row) => {
   try {
     const data = await datasourceApi.preview(row.id)
     if (data && data.length > 0) {
-      previewData.value = data.slice(0, 10) // 只显示前10条
+      previewData.value = data.slice(0, 10)
       previewKeys.value = Object.keys(data[0])
     } else {
       previewData.value = []
@@ -312,6 +317,47 @@ const previewDataSource = async (row) => {
   } catch (error) {
     console.error('Preview data error:', error)
     ElMessage.error(error.message || '预览失败')
+  }
+}
+
+const exportDatasources = async () => {
+  if (datasources.value.length === 0) {
+    ElMessage.warning('没有可导出的数据源')
+    return
+  }
+  
+  try {
+    const exportData = datasources.value.map(ds => ({
+      name: ds.name,
+      source_type: ds.source_type,
+      description: ds.description,
+      // 不导出敏感信息如密码
+      config: {
+        file_path: ds.file_path,
+        db_host: ds.db_host,
+        db_port: ds.db_port,
+        db_user: ds.db_user,
+        db_name: ds.db_name,
+        db_query: ds.db_query,
+        db_collection: ds.db_collection,
+        redis_key: ds.redis_key,
+        file_encoding: ds.file_encoding,
+        csv_delimiter: ds.csv_delimiter
+      }
+    }))
+    
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `datasources_export_${dayjs().format('YYYYMMDD_HHmmss')}.json`
+    link.click()
+    window.URL.revokeObjectURL(url)
+    
+    ElMessage.success('导出成功')
+  } catch (error) {
+    console.error('Export error:', error)
+    ElMessage.error('导出失败')
   }
 }
 </script>
@@ -330,5 +376,10 @@ const previewDataSource = async (row) => {
 
 .page-header h2 {
   margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
 }
 </style>
