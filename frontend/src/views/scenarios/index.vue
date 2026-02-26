@@ -3,6 +3,15 @@
     <div class="page-header">
       <h2>场景管理</h2>
       <div class="header-actions">
+        <el-button v-if="selectedScenarios.length > 0" type="danger" @click="batchDelete">
+          <el-icon><Delete /></el-icon>批量删除 ({{ selectedScenarios.length }})
+        </el-button>
+        <el-button v-if="selectedScenarios.length > 0" type="primary" @click="batchCopy">
+          <el-icon><CopyDocument /></el-icon>批量复制 ({{ selectedScenarios.length }})
+        </el-button>
+        <el-button v-if="selectedScenarios.length > 0" type="success" @click="batchExport">
+          <el-icon><Download /></el-icon>批量导出 ({{ selectedScenarios.length }})
+        </el-button>
         <el-button type="primary" @click="showImportDialog = true">
           <el-icon><Upload /></el-icon>导入 HAR
         </el-button>
@@ -13,7 +22,13 @@
     </div>
 
     <el-card>
-      <el-table :data="scenarios" v-loading="loading" style="width: 100%">
+      <el-table 
+        :data="scenarios" 
+        v-loading="loading" 
+        style="width: 100%"
+        @selection-change="handleSelectionChange"
+      >
+        <el-table-column type="selection" width="55" />
         <el-table-column prop="name" label="场景名称" show-overflow-tooltip>
           <template #default="{ row }">
             <el-link type="primary" @click="editScenario(row)">{{ row.name }}</el-link>
@@ -38,7 +53,6 @@
       </el-table>
     </el-card>
 
-    <!-- HAR 导入对话框 -->
     <el-dialog v-model="showImportDialog" title="导入 HAR 文件" width="600px">
       <el-form :model="importForm" label-width="120px">
         <el-form-item label="HAR 文件">
@@ -74,7 +88,6 @@
       </template>
     </el-dialog>
 
-    <!-- 运行压测对话框 -->
     <el-dialog v-model="showRunDialog" title="运行压测" width="500px">
       <el-form :model="runForm" label-width="120px">
         <el-form-item label="并发用户数">
@@ -99,13 +112,14 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Upload, UploadFilled } from '@element-plus/icons-vue'
+import { Plus, Upload, UploadFilled, Delete, CopyDocument, Download } from '@element-plus/icons-vue'
 import dayjs from 'dayjs'
 import { scenarioApi, reportApi } from '@/api'
 
 const router = useRouter()
 const loading = ref(false)
 const scenarios = ref([])
+const selectedScenarios = ref([])
 const showImportDialog = ref(false)
 const showRunDialog = ref(false)
 const importing = ref(false)
@@ -125,7 +139,6 @@ const runForm = ref({
   duration: 60
 })
 
-// 调用 API 获取场景列表
 onMounted(() => {
   fetchScenarios()
 })
@@ -145,6 +158,10 @@ const fetchScenarios = async () => {
 
 const formatDate = (date) => {
   return dayjs(date).format('YYYY-MM-DD HH:mm')
+}
+
+const handleSelectionChange = (selection) => {
+  selectedScenarios.value = selection
 }
 
 const handleFileChange = (file) => {
@@ -221,6 +238,86 @@ const deleteScenario = async (row) => {
   }
 }
 
+const batchDelete = async () => {
+  if (selectedScenarios.value.length === 0) {
+    ElMessage.warning('请选择要删除的场景')
+    return
+  }
+  
+  try {
+    await ElMessageBox.confirm(
+      `确定要删除选中的 ${selectedScenarios.value.length} 个场景吗？`,
+      '批量删除',
+      { type: 'warning' }
+    )
+    
+    const promises = selectedScenarios.value.map(scenario => scenarioApi.delete(scenario.id))
+    await Promise.all(promises)
+    ElMessage.success(`成功删除 ${selectedScenarios.value.length} 个场景`)
+    selectedScenarios.value = []
+    fetchScenarios()
+  } catch (error) {
+    if (error !== 'cancel') {
+      console.error('Batch delete error:', error)
+      ElMessage.error(error.message || '批量删除失败')
+    }
+  }
+}
+
+const batchCopy = async () => {
+  if (selectedScenarios.value.length === 0) {
+    ElMessage.warning('请选择要复制的场景')
+    return
+  }
+  
+  try {
+    const promises = selectedScenarios.value.map(scenario => scenarioApi.copy(scenario.id))
+    await Promise.all(promises)
+    ElMessage.success(`成功复制 ${selectedScenarios.value.length} 个场景`)
+    selectedScenarios.value = []
+    fetchScenarios()
+  } catch (error) {
+    console.error('Batch copy error:', error)
+    ElMessage.error(error.message || '批量复制失败')
+  }
+}
+
+const batchExport = async () => {
+  if (selectedScenarios.value.length === 0) {
+    ElMessage.warning('请选择要导出的场景')
+    return
+  }
+  
+  try {
+    const exportData = await Promise.all(
+      selectedScenarios.value.map(async (scenario) => {
+        const detail = await scenarioApi.detail(scenario.id)
+        return {
+          name: detail.name,
+          description: detail.description,
+          default_users: detail.default_users,
+          default_spawn_rate: detail.default_spawn_rate,
+          default_duration: detail.default_duration,
+          requests: detail.requests || []
+        }
+      })
+    )
+    
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `scenarios_export_${dayjs().format('YYYYMMDD_HHmmss')}.json`
+    link.click()
+    window.URL.revokeObjectURL(url)
+    
+    ElMessage.success(`成功导出 ${selectedScenarios.value.length} 个场景`)
+  } catch (error) {
+    console.error('Batch export error:', error)
+    ElMessage.error(error.message || '批量导出失败')
+  }
+}
+
 const runTest = (row) => {
   currentScenario.value = row
   showRunDialog.value = true
@@ -229,7 +326,6 @@ const runTest = (row) => {
 const confirmRun = async () => {
   try {
     running.value = true
-    // 创建报告参数
     const reportData = {
       scenario: currentScenario.value.id,
       name: `${currentScenario.value.name}_压测_${Date.now()}`,
@@ -238,9 +334,7 @@ const confirmRun = async () => {
       duration: runForm.value.duration
     }
     
-    // 创建报告
     const reportResponse = await reportApi.create(reportData)
-    // 然后运行压测
     await reportApi.run(reportResponse.id)
     
     ElMessage.success('压测已启动')
@@ -269,6 +363,11 @@ const confirmRun = async () => {
 
 .page-header h2 {
   margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
 }
 
 .ml-2 {
