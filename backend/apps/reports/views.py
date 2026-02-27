@@ -203,6 +203,8 @@ def run_load_test(request, pk):
             total_failures = 0
 
             for name, data in stats.get("requests", {}).items():
+                if name == "Aggregated":
+                    continue
                 total_requests += data["num_requests"]
                 total_failures += data["num_failures"]
 
@@ -232,6 +234,25 @@ def run_load_test(request, pk):
                 if total_requests > 0
                 else 0
             )
+            
+            # 聚合统计（从CSV的"Aggregated"行读取）
+            if "Aggregated" in stats.get("requests", {}):
+                agg = stats["requests"]["Aggregated"]
+                report.avg_response_time = agg.get("avg_response_time", 0)
+                report.min_response_time = agg.get("min_response_time", 0)
+                report.max_response_time = agg.get("max_response_time", 0)
+                report.p50_response_time = agg.get("p50", 0)
+                report.p90_response_time = agg.get("p90", 0)
+                report.p95_response_time = agg.get("p95", 0)
+                report.p99_response_time = agg.get("p99", 0)
+                report.rps = agg.get("rps", 0)
+            else:
+                # 如果没有Aggregated行，从各个请求计算
+                if total_requests > 0:
+                    avg_times = [data.get("avg_response_time", 0) for data in stats.get("requests", {}).values() if data.get("num_requests", 0) > 0]
+                    if avg_times:
+                        report.avg_response_time = sum(avg_times) / len(avg_times)
+            
             report.ended_at = timezone.now()
             report.save()
 
@@ -496,7 +517,7 @@ def export_report_pdf(request, pk):
         buffer.seek(0)
         response = HttpResponse(buffer.read(), content_type="application/pdf")
         response["Content-Disposition"] = (
-            f'attachment; filename="report_{report.id[:8]}_{report.name}.pdf"'
+            f'attachment; filename="report_{str(report.id)[:8]}_{report.name}.pdf"'
         )
         return response
 
@@ -523,9 +544,8 @@ def export_report_excel(request, pk):
 
     # 添加标题
     ws["A1"] = f"压测报告: {report.name}"
-    ws["A1"].font = ws["A1"].font.copy()
-    ws["A1"].font.bold = True
-    ws["A1"].font.size = 16
+    from openpyxl.styles import Font
+    ws["A1"].font = Font(bold=True, size=16)
 
     # 添加基本信息
     ws.append([])
@@ -641,6 +661,6 @@ def export_report_excel(request, pk):
         content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
     response["Content-Disposition"] = (
-        f'attachment; filename="report_{report.id[:8]}_{report.name}.xlsx"'
+        f'attachment; filename="report_{str(report.id)[:8]}_{report.name}.xlsx"'
     )
     return response

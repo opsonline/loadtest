@@ -144,7 +144,7 @@ def on_quitting(environment, **kwargs):
     def run_load_test(self, report, locust_file):
         """运行压测"""
         reports_dir = Path(settings.LOCUST_REPORTS_DIR)
-        stats_file = reports_dir / f"stats_{report.id}.json"
+        stats_file = reports_dir / f"stats_{report.id}"
 
         cmd = [
             settings.LOCUST_BINARY,
@@ -158,11 +158,9 @@ def on_quitting(environment, **kwargs):
             "--run-time",
             f"{report.duration}s",
             "--csv",
-            str(reports_dir / f"report_{report.id}"),
-            "--json",
+            str(stats_file),
         ]
 
-        # 启动进程
         process = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
@@ -173,7 +171,13 @@ def on_quitting(environment, **kwargs):
 
         self.processes[str(report.id)] = {"process": process, "start_time": time.time()}
 
-        return process
+        stdout, stderr = process.communicate()
+        
+        if process.returncode != 0:
+            print(f"Locust stderr: {stderr}")
+            raise Exception(f"Locust failed with return code {process.returncode}: {stderr}")
+        
+        return True
 
     def stop_load_test(self, report_id):
         """停止压测"""
@@ -218,8 +222,8 @@ def on_quitting(environment, **kwargs):
     def parse_csv_stats(self, report_id):
         """解析 CSV 统计数据"""
         reports_dir = Path(settings.LOCUST_REPORTS_DIR)
-        stats_file = reports_dir / f"report_{report_id}_stats.csv"
-        stats_history_file = reports_dir / f"report_{report_id}_stats_history.csv"
+        stats_file = reports_dir / f"stats_{report_id}_stats.csv"
+        stats_history_file = reports_dir / f"stats_{report_id}_stats_history.csv"
 
         stats = {"requests": {}, "history": []}
 
@@ -241,7 +245,7 @@ def on_quitting(environment, **kwargs):
                             if len(values) == len(headers):
                                 row = dict(zip(headers, values))
                                 name = row.get("Name", "")
-                                if name and name != "Aggregated":
+                                if name:
                                     stats["requests"][name] = {
                                         "num_requests": int(
                                             row.get("Request Count", 0)

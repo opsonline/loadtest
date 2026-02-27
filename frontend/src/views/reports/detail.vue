@@ -24,19 +24,19 @@
       </el-col>
       <el-col :span="6">
         <el-card class="stat-card">
-          <div class="stat-value">{{ report.success_rate?.toFixed(2) }}%</div>
+          <div class="stat-value">{{ Math.round(report.success_rate) }}%</div>
           <div class="stat-label">成功率</div>
         </el-card>
       </el-col>
       <el-col :span="6">
         <el-card class="stat-card">
-          <div class="stat-value">{{ report.rps?.toFixed(2) }}</div>
+          <div class="stat-value">{{ Math.round(report.rps) }}</div>
           <div class="stat-label">RPS</div>
         </el-card>
       </el-col>
       <el-col :span="6">
         <el-card class="stat-card">
-          <div class="stat-value">{{ report.avg_response_time?.toFixed(2) }}ms</div>
+          <div class="stat-value">{{ Math.round(report.avg_response_time) }}ms</div>
           <div class="stat-label">平均响应时间</div>
         </el-card>
       </el-col>
@@ -155,13 +155,13 @@
         <el-table-column prop="method" label="方法" width="80" />
         <el-table-column prop="num_requests" label="请求数" width="100" />
         <el-table-column prop="avg_response_time" label="平均响应时间" width="120">
-          <template #default="{ row }">{{ row.avg_response_time?.toFixed(2) }}ms</template>
+          <template #default="{ row }">{{ Math.round(row.avg_response_time) }}ms</template>
         </el-table-column>
         <el-table-column prop="p95_response_time" label="P95" width="100">
-          <template #default="{ row }">{{ row.p95_response_time?.toFixed(2) }}ms</template>
+          <template #default="{ row }">{{ Math.round(row.p95_response_time) }}ms</template>
         </el-table-column>
         <el-table-column prop="p99_response_time" label="P99" width="100">
-          <template #default="{ row }">{{ row.p99_response_time?.toFixed(2) }}ms</template>
+          <template #default="{ row }">{{ Math.round(row.p99_response_time) }}ms</template>
         </el-table-column>
       </el-table>
     </el-card>
@@ -280,6 +280,15 @@ const resizeObserver = ref(null)
 watch(report, (newReport) => {
   if (newReport) {
     // 等待DOM更新后再初始化图表
+    setTimeout(() => {
+      initCharts()
+    }, 300)
+  }
+}, { immediate: true })
+
+// 当请求统计数据加载后更新图表
+watch(requestStats, (newStats) => {
+  if (newStats && newStats.length > 0) {
     setTimeout(() => {
       initCharts()
     }, 100)
@@ -481,242 +490,124 @@ watch(requestStats, () => {
 }, { deep: true })
 
 const initCharts = () => {
-  // 初始化RPS图表
-  rpsChart.value = echarts.init(document.getElementById('rps-chart'))
-  rpsChart.value.setOption({
-    title: {
-      text: 'RPS 实时趋势'
-    },
-    tooltip: {
-      trigger: 'axis'
-    },
-    xAxis: {
-      type: 'category',
-      boundaryGap: false,
-      data: []
-    },
-    yAxis: {
-      type: 'value',
-      name: 'RPS'
-    },
-    series: [{
-      name: 'RPS',
-      type: 'line',
-      smooth: true,
-      data: [],
-      areaStyle: {}
-    }]
-  })
+  const getElementAndInit = (id, chartRef) => {
+    const el = document.getElementById(id)
+    if (!el) {
+      console.warn(`Element ${id} not found`)
+      return false
+    }
+    if (chartRef.value) {
+      return true
+    }
+    return true
+  }
+
+  if (!getElementAndInit('rps-chart', rpsChart)) return
+  if (!getElementAndInit('response-time-chart', responseTimeChart)) return
+  if (!getElementAndInit('success-rate-pie', successRatePieChart)) return
+  if (!getElementAndInit('response-time-distribution', responseTimeDistributionChart)) return
+  if (!getElementAndInit('request-response-bar', requestResponseBarChart)) return
+  if (!getElementAndInit('error-distribution-chart', errorDistributionChart)) return
+  if (!getElementAndInit('request-count-chart', requestCountChart)) return
+
+  if (!rpsChart.value) {
+    rpsChart.value = echarts.init(document.getElementById('rps-chart'))
+    rpsChart.value.setOption({
+      title: { text: 'RPS 实时趋势' },
+      tooltip: { trigger: 'axis' },
+      xAxis: { type: 'category', boundaryGap: false, data: [] },
+      yAxis: { type: 'value', name: 'RPS' },
+      series: [{
+        name: 'RPS', type: 'line', smooth: true, data: [], areaStyle: {}
+      }]
+    })
+  }
   
-  // 初始化响应时间图表
-  responseTimeChart.value = echarts.init(document.getElementById('response-time-chart'))
-  responseTimeChart.value.setOption({
-    title: {
-      text: '平均响应时间趋势'
-    },
-    tooltip: {
-      trigger: 'axis'
-    },
-    xAxis: {
-      type: 'category',
-      boundaryGap: false,
-      data: []
-    },
-    yAxis: {
-      type: 'value',
-      name: '响应时间 (ms)'
-    },
-    series: [{
-      name: '响应时间',
-      type: 'line',
-      smooth: true,
-      data: [],
-      areaStyle: {}
-    }]
-  })
+  if (!responseTimeChart.value) {
+    responseTimeChart.value = echarts.init(document.getElementById('response-time-chart'))
+    responseTimeChart.value.setOption({
+      title: { text: '平均响应时间趋势' },
+      tooltip: { trigger: 'axis' },
+      xAxis: { type: 'category', boundaryGap: false, data: [] },
+      yAxis: { type: 'value', name: '响应时间 (ms)' },
+      series: [{
+        name: '响应时间', type: 'line', smooth: true, data: [], areaStyle: {}
+      }]
+    })
+  }
   
-  // 初始化成功率饼图
-  successRatePieChart.value = echarts.init(document.getElementById('success-rate-pie'))
-  successRatePieChart.value.setOption({
-    title: {
-      text: '请求成功率',
-      left: 'center'
-    },
-    tooltip: {
-      trigger: 'item',
-      formatter: '{a} <br/>{b}: {c} ({d}%)'
-    },
-    legend: {
-      orient: 'vertical',
-      left: 'left'
-    },
-    series: [{
-      name: '成功率',
-      type: 'pie',
-      radius: ['40%', '70%'],
-      avoidLabelOverlap: false,
-      itemStyle: {
-        borderRadius: 10,
-        borderColor: '#fff',
-        borderWidth: 2
-      },
-      label: {
-        show: false,
-        position: 'center'
-      },
-      emphasis: {
-        label: {
-          show: true,
-          fontSize: '18',
-          fontWeight: 'bold'
-        }
-      },
-      labelLine: {
-        show: false
-      },
-      data: []
-    }]
-  })
-  
-  // 初始化响应时间分布饼图
-  responseTimeDistributionChart.value = echarts.init(document.getElementById('response-time-distribution'))
-  responseTimeDistributionChart.value.setOption({
-    title: {
-      text: '响应时间分布',
-      left: 'center'
-    },
-    tooltip: {
-      trigger: 'item',
-      formatter: '{a} <br/>{b}: {c} ({d}%)'
-    },
-    legend: {
-      orient: 'vertical',
-      left: 'left'
-    },
-    series: [{
-      name: '响应时间分布',
-      type: 'pie',
-      radius: ['40%', '70%'],
-      itemStyle: {
-        borderRadius: 10,
-        borderColor: '#fff',
-        borderWidth: 2
-      },
-      data: []
-    }]
-  })
-  
-  // 初始化请求响应时间柱状图
-  requestResponseBarChart.value = echarts.init(document.getElementById('request-response-bar'))
-  requestResponseBarChart.value.setOption({
-    title: {
-      text: '各请求响应时间对比'
-    },
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: {
-        type: 'shadow'
-      }
-    },
-    legend: {
-      data: ['平均响应时间', 'P95响应时间', 'P99响应时间']
-    },
-    grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '3%',
-      containLabel: true
-    },
-    xAxis: {
-      type: 'category',
-      data: [],
-      axisTick: {
-        alignWithLabel: true
-      }
-    },
-    yAxis: {
-      type: 'value',
-      name: '响应时间 (ms)'
-    },
-    series: [
-      {
-        name: '平均响应时间',
-        type: 'bar',
+  if (!successRatePieChart.value) {
+    successRatePieChart.value = echarts.init(document.getElementById('success-rate-pie'))
+    successRatePieChart.value.setOption({
+      title: { text: '请求成功率', left: 'center' },
+      tooltip: { trigger: 'item', formatter: '{a} <br/>{b}: {c} ({d}%)' },
+      legend: { orient: 'vertical', left: 'left' },
+      series: [{
+        name: '成功率', type: 'pie', radius: ['40%', '70%'],
+        itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
         data: []
-      },
-      {
-        name: 'P95响应时间',
-        type: 'bar',
-        data: []
-      },
-      {
-        name: 'P99响应时间',
-        type: 'bar',
-        data: []
-      }
-    ]
-  })
+      }]
+    })
+  }
   
-  // 初始化错误分布饼图
-  errorDistributionChart.value = echarts.init(document.getElementById('error-distribution-chart'))
-  errorDistributionChart.value.setOption({
-    title: {
-      text: '错误分布',
-      left: 'center'
-    },
-    tooltip: {
-      trigger: 'item',
-      formatter: '{b}: {c} ({d}%)'
-    },
-    legend: {
-      orient: 'vertical',
-      left: 'left'
-    },
-    series: [{
-      name: '错误类型',
-      type: 'pie',
-      radius: '50%',
-      data: [],
-      emphasis: {
-        itemStyle: {
-          shadowBlur: 10,
-          shadowOffsetX: 0,
-          shadowColor: 'rgba(0, 0, 0, 0.5)'
-        }
-      }
-    }]
-  })
+  if (!responseTimeDistributionChart.value) {
+    responseTimeDistributionChart.value = echarts.init(document.getElementById('response-time-distribution'))
+    responseTimeDistributionChart.value.setOption({
+      title: { text: '响应时间分布', left: 'center' },
+      tooltip: { trigger: 'item', formatter: '{a} <br/>{b}: {c} ({d}%)' },
+      legend: { orient: 'vertical', left: 'left' },
+      series: [{
+        name: '响应时间分布', type: 'pie', radius: ['40%', '70%'],
+        itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
+        data: []
+      }]
+    })
+  }
   
-  // 初始化请求数分布柱状图
-  requestCountChart.value = echarts.init(document.getElementById('request-count-chart'))
-  requestCountChart.value.setOption({
-    title: {
-      text: '请求分布',
-      left: 'center'
-    },
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: {
-        type: 'shadow'
-      }
-    },
-    xAxis: {
-      type: 'category',
-      data: []
-    },
-    yAxis: {
-      type: 'value',
-      name: '请求数'
-    },
-    series: [{
-      name: '请求数',
-      type: 'bar',
-      data: [],
-      itemStyle: {
-        color: '#409EFF'
-      }
-    }]
-  })
+  if (!requestResponseBarChart.value) {
+    requestResponseBarChart.value = echarts.init(document.getElementById('request-response-bar'))
+    requestResponseBarChart.value.setOption({
+      title: { text: '各请求响应时间对比' },
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      legend: { data: ['平均响应时间', 'P95响应时间', 'P99响应时间'] },
+      grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+      xAxis: { type: 'category', data: [], axisTick: { alignWithLabel: true } },
+      yAxis: { type: 'value', name: '响应时间 (ms)' },
+      series: [
+        { name: '平均响应时间', type: 'bar', data: [] },
+        { name: 'P95响应时间', type: 'bar', data: [] },
+        { name: 'P99响应时间', type: 'bar', data: [] }
+      ]
+    })
+  }
+  
+  if (!errorDistributionChart.value) {
+    errorDistributionChart.value = echarts.init(document.getElementById('error-distribution-chart'))
+    errorDistributionChart.value.setOption({
+      title: { text: '错误分布', left: 'center' },
+      tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+      legend: { orient: 'vertical', left: 'left' },
+      series: [{
+        name: '错误类型', type: 'pie', radius: '50%', data: [],
+        emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0, 0, 0, 0.5)' } }
+      }]
+    })
+  }
+  
+  if (!requestCountChart.value) {
+    requestCountChart.value = echarts.init(document.getElementById('request-count-chart'))
+    requestCountChart.value.setOption({
+      title: { text: '请求分布', left: 'center' },
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      xAxis: { type: 'category', data: [] },
+      yAxis: { type: 'value', name: '请求数' },
+      series: [{
+        name: '请求数', type: 'bar', data: [], itemStyle: { color: '#409EFF' }
+      }]
+    })
+  }
+
+  updateStatisticalCharts()
 }
 
 const updateCharts = () => {

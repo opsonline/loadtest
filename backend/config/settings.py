@@ -180,7 +180,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
 # Locust Settings
-LOCUST_BINARY = os.getenv('LOCUST_BINARY', 'locust')
+LOCUST_BINARY = os.getenv('LOCUST_BINARY', BASE_DIR / 'venv' / 'bin' / 'locust')
 LOCUST_REPORTS_DIR = BASE_DIR / 'uploads' / 'reports'
 
 # Logging
