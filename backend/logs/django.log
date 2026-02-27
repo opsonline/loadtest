@@ -2266,3 +2266,199 @@ INFO 2026-02-27 01:25:14,009 basehttp 74152 130596228732608 "GET /api/v1/users/m
 INFO 2026-02-27 01:25:14,051 basehttp 74152 130596228732608 "GET /api/v1/scenarios/ HTTP/1.1" 200 870
 INFO 2026-02-27 01:25:15,665 basehttp 74152 130596228732608 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
 INFO 2026-02-27 01:25:15,707 basehttp 74152 130596228732608 "GET /api/v1/scenarios/80733195-ddf3-4d11-8946-e66d9ddd468a/ HTTP/1.1" 200 666
+INFO 2026-02-27 11:41:32,299 autoreload 13840 13968 Watching for file changes with StatReloader
+WARNING 2026-02-27 11:41:52,673 log 13840 14848 Unauthorized: /api/v1/users/login/
+WARNING 2026-02-27 11:41:52,675 basehttp 13840 14848 "POST /api/v1/users/login/ HTTP/1.1" 401 50
+WARNING 2026-02-27 11:41:59,056 log 13840 9832 Unauthorized: /api/v1/users/login/
+WARNING 2026-02-27 11:41:59,057 basehttp 13840 9832 "POST /api/v1/users/login/ HTTP/1.1" 401 50
+WARNING 2026-02-27 11:42:34,581 log 13840 9444 Unauthorized: /api/v1/users/login/
+WARNING 2026-02-27 11:42:34,582 basehttp 13840 9444 "POST /api/v1/users/login/ HTTP/1.1" 401 50
+WARNING 2026-02-27 11:42:58,138 log 13840 1296 Unauthorized: /api/v1/users/login/
+WARNING 2026-02-27 11:42:58,139 basehttp 13840 1296 "POST /api/v1/users/login/ HTTP/1.1" 401 50
+WARNING 2026-02-27 11:44:05,382 log 13840 15684 Unauthorized: /api/v1/users/login/
+WARNING 2026-02-27 11:44:05,383 basehttp 13840 15684 "POST /api/v1/users/login/ HTTP/1.1" 401 50
+INFO 2026-02-27 11:50:38,803 autoreload 2864 23992 Watching for file changes with StatReloader
+WARNING 2026-02-27 11:50:55,081 log 2864 16760 Unauthorized: /api/v1/users/login/
+WARNING 2026-02-27 11:50:55,083 basehttp 2864 16760 "POST /api/v1/users/login/ HTTP/1.1" 401 50
+WARNING 2026-02-27 11:50:58,220 log 2864 26352 Unauthorized: /api/v1/users/login/
+WARNING 2026-02-27 11:50:58,221 basehttp 2864 26352 "POST /api/v1/users/login/ HTTP/1.1" 401 50
+INFO 2026-02-27 11:51:09,914 basehttp 2864 17852 "POST /api/v1/users/login/ HTTP/1.1" 200 742
+INFO 2026-02-27 11:51:10,198 basehttp 2864 13916 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 11:51:10,587 basehttp 2864 23016 "GET /api/v1/api-tests/suites/?page_size=1000 HTTP/1.1" 200 86
+INFO 2026-02-27 11:51:10,597 basehttp 2864 26216 "GET /api/v1/datasources/?page_size=1000 HTTP/1.1" 200 86
+INFO 2026-02-27 11:51:10,608 basehttp 2864 10588 "GET /api/v1/scenarios/?page_size=1000 HTTP/1.1" 200 870
+INFO 2026-02-27 11:51:10,612 basehttp 2864 26580 "GET /api/v1/reports/?page_size=1000 HTTP/1.1" 200 4792
+INFO 2026-02-27 11:51:10,647 basehttp 2864 19276 "GET /api/v1/reports/?page_size=5 HTTP/1.1" 200 4792
+INFO 2026-02-27 11:51:30,571 basehttp 2864 8784 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 11:51:30,734 basehttp 2864 14892 "GET /api/v1/reports/ HTTP/1.1" 200 4792
+INFO 2026-02-27 11:51:33,024 basehttp 2864 8064 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 11:51:33,595 basehttp 2864 25124 "GET /api/v1/reports/0aeb8614-b124-4e79-ab72-ac2b4c222d00/ HTTP/1.1" 200 772
+INFO 2026-02-27 11:51:33,677 basehttp 2864 13360 "GET /api/v1/reports/0aeb8614-b124-4e79-ab72-ac2b4c222d00/stats/ HTTP/1.1" 200 175
+INFO 2026-02-27 11:51:37,950 basehttp 2864 23512 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 11:51:38,054 basehttp 2864 6080 "GET /api/v1/datasources/?page_size=1000 HTTP/1.1" 200 86
+INFO 2026-02-27 11:51:38,054 basehttp 2864 3912 "GET /api/v1/scenarios/?page_size=1000 HTTP/1.1" 200 870
+INFO 2026-02-27 11:51:38,067 basehttp 2864 27396 "GET /api/v1/api-tests/suites/?page_size=1000 HTTP/1.1" 200 86
+INFO 2026-02-27 11:51:38,070 basehttp 2864 15508 "GET /api/v1/reports/?page_size=1000 HTTP/1.1" 200 4792
+INFO 2026-02-27 11:51:38,119 basehttp 2864 3824 "GET /api/v1/reports/?page_size=5 HTTP/1.1" 200 4792
+INFO 2026-02-27 11:53:26,768 basehttp 2864 4372 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 11:53:26,966 basehttp 2864 19712 "GET /api/v1/scenarios/ HTTP/1.1" 200 870
+INFO 2026-02-27 11:53:28,434 basehttp 2864 25244 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 11:53:28,495 basehttp 2864 14596 "GET /api/v1/reports/ HTTP/1.1" 200 4792
+INFO 2026-02-27 11:53:33,931 basehttp 2864 27020 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 11:53:34,085 basehttp 2864 5200 "GET /api/v1/environments/ HTTP/1.1" 200 1373
+INFO 2026-02-27 11:53:35,283 basehttp 2864 17420 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 11:53:35,344 basehttp 2864 26168 "GET /api/v1/reports/ HTTP/1.1" 200 4792
+INFO 2026-02-27 11:53:36,771 basehttp 2864 15112 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 11:53:36,982 basehttp 2864 27492 "GET /api/v1/datasources/ HTTP/1.1" 200 86
+INFO 2026-02-27 11:53:38,156 basehttp 2864 22304 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 11:53:38,319 basehttp 2864 24068 "GET /api/v1/api-tests/suites/ HTTP/1.1" 200 86
+INFO 2026-02-27 11:53:39,240 basehttp 2864 27272 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 11:53:39,343 basehttp 2864 23152 "GET /api/v1/datasources/?page_size=1000 HTTP/1.1" 200 86
+INFO 2026-02-27 11:53:39,353 basehttp 2864 17424 "GET /api/v1/scenarios/?page_size=1000 HTTP/1.1" 200 870
+INFO 2026-02-27 11:53:39,353 basehttp 2864 12872 "GET /api/v1/api-tests/suites/?page_size=1000 HTTP/1.1" 200 86
+INFO 2026-02-27 11:53:39,359 basehttp 2864 26296 "GET /api/v1/reports/?page_size=1000 HTTP/1.1" 200 4792
+INFO 2026-02-27 11:53:39,426 basehttp 2864 22544 "GET /api/v1/reports/?page_size=5 HTTP/1.1" 200 4792
+INFO 2026-02-27 11:53:40,812 basehttp 2864 6124 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 11:53:40,870 basehttp 2864 7796 "GET /api/v1/scenarios/ HTTP/1.1" 200 870
+INFO 2026-02-27 11:53:41,631 basehttp 2864 22040 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 11:53:41,703 basehttp 2864 15092 "GET /api/v1/reports/ HTTP/1.1" 200 4792
+INFO 2026-02-27 11:53:42,420 basehttp 2864 26480 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 11:53:42,480 basehttp 2864 26712 "GET /api/v1/environments/ HTTP/1.1" 200 1373
+INFO 2026-02-27 11:53:43,261 basehttp 2864 27320 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 11:53:43,437 basehttp 2864 26908 "GET /api/v1/api-tests/suites/?page_size=1000 HTTP/1.1" 200 86
+INFO 2026-02-27 11:53:43,445 basehttp 2864 13916 "GET /api/v1/scenarios/?page_size=1000 HTTP/1.1" 200 870
+INFO 2026-02-27 11:53:43,447 basehttp 2864 26760 "GET /api/v1/datasources/?page_size=1000 HTTP/1.1" 200 86
+INFO 2026-02-27 11:53:43,454 basehttp 2864 17852 "GET /api/v1/reports/?page_size=1000 HTTP/1.1" 200 4792
+INFO 2026-02-27 11:53:43,481 basehttp 2864 16864 "GET /api/v1/reports/?page_size=5 HTTP/1.1" 200 4792
+INFO 2026-02-27 11:53:44,062 basehttp 2864 1296 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 11:53:44,121 basehttp 2864 20116 "GET /api/v1/scenarios/ HTTP/1.1" 200 870
+INFO 2026-02-27 11:53:45,539 basehttp 2864 27028 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 11:53:47,378 basehttp 2864 26928 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 11:53:47,464 basehttp 2864 23252 "GET /api/v1/datasources/?page_size=1000 HTTP/1.1" 200 86
+INFO 2026-02-27 11:53:47,464 basehttp 2864 13664 "GET /api/v1/api-tests/suites/?page_size=1000 HTTP/1.1" 200 86
+INFO 2026-02-27 11:53:47,469 basehttp 2864 25564 "GET /api/v1/scenarios/?page_size=1000 HTTP/1.1" 200 870
+INFO 2026-02-27 11:53:47,479 basehttp 2864 20828 "GET /api/v1/reports/?page_size=1000 HTTP/1.1" 200 4792
+INFO 2026-02-27 11:53:47,507 basehttp 2864 16552 "GET /api/v1/reports/?page_size=5 HTTP/1.1" 200 4792
+INFO 2026-02-27 11:53:49,183 basehttp 2864 12924 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 11:53:49,238 basehttp 2864 17556 "GET /api/v1/scenarios/ HTTP/1.1" 200 870
+INFO 2026-02-27 12:16:42,872 autoreload 11592 24504 Watching for file changes with StatReloader
+INFO 2026-02-27 12:16:44,892 basehttp 11592 23692 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 12:16:45,018 basehttp 11592 20548 "GET /api/v1/scenarios/ HTTP/1.1" 200 927
+INFO 2026-02-27 12:16:45,436 basehttp 11592 27192 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 12:16:45,551 basehttp 11592 24788 "GET /api/v1/scenarios/ HTTP/1.1" 200 927
+INFO 2026-02-27 12:16:48,404 basehttp 11592 26760 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 12:16:48,517 basehttp 11592 27184 "GET /api/v1/scenarios/80733195-ddf3-4d11-8946-e66d9ddd468a/ HTTP/1.1" 200 685
+INFO 2026-02-27 12:17:13,228 basehttp 11592 25776 "PUT /api/v1/scenarios/80733195-ddf3-4d11-8946-e66d9ddd468a/ HTTP/1.1" 200 359
+INFO 2026-02-27 12:17:16,772 basehttp 11592 23760 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 12:17:16,844 basehttp 11592 17612 "GET /api/v1/scenarios/ HTTP/1.1" 200 945
+INFO 2026-02-27 12:17:17,877 basehttp 11592 5048 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 12:17:17,936 basehttp 11592 8132 "GET /api/v1/scenarios/80733195-ddf3-4d11-8946-e66d9ddd468a/ HTTP/1.1" 200 682
+INFO 2026-02-27 12:17:20,321 basehttp 11592 10728 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 12:17:20,388 basehttp 11592 27608 "GET /api/v1/scenarios/ HTTP/1.1" 200 945
+INFO 2026-02-27 12:17:22,504 basehttp 11592 8456 "POST /api/v1/reports/ HTTP/1.1" 201 718
+INFO 2026-02-27 12:17:22,559 basehttp 11592 27616 "POST /api/v1/reports/0c020580-7a4a-42b4-9680-3a4483d43f0a/run/ HTTP/1.1" 200 98
+INFO 2026-02-27 12:17:22,592 basehttp 11592 21420 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 12:17:22,700 basehttp 11592 6464 "GET /api/v1/reports/ HTTP/1.1" 200 5124
+INFO 2026-02-27 12:17:24,669 basehttp 11592 25680 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 12:17:24,862 basehttp 11592 22664 "GET /api/v1/reports/0c020580-7a4a-42b4-9680-3a4483d43f0a/ HTTP/1.1" 200 743
+INFO 2026-02-27 12:17:24,915 basehttp 11592 26760 "GET /api/v1/reports/0c020580-7a4a-42b4-9680-3a4483d43f0a/stats/ HTTP/1.1" 200 176
+INFO 2026-02-27 12:17:29,997 basehttp 11592 20928 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 12:17:30,129 basehttp 11592 7572 "GET /api/v1/reports/0c020580-7a4a-42b4-9680-3a4483d43f0a/ HTTP/1.1" 200 775
+INFO 2026-02-27 12:17:30,311 basehttp 11592 18584 "GET /api/v1/reports/0c020580-7a4a-42b4-9680-3a4483d43f0a/stats/ HTTP/1.1" 200 178
+INFO 2026-02-27 12:17:33,507 basehttp 11592 4156 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 12:17:33,586 basehttp 11592 4016 "GET /api/v1/scenarios/ HTTP/1.1" 200 945
+INFO 2026-02-27 12:17:35,015 basehttp 11592 18316 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 12:17:35,068 basehttp 11592 20424 "GET /api/v1/reports/ HTTP/1.1" 200 5126
+INFO 2026-02-27 12:17:36,372 basehttp 11592 24352 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 12:17:36,426 basehttp 11592 19240 "GET /api/v1/reports/0c020580-7a4a-42b4-9680-3a4483d43f0a/ HTTP/1.1" 200 775
+INFO 2026-02-27 12:17:36,457 basehttp 11592 22468 "GET /api/v1/reports/0c020580-7a4a-42b4-9680-3a4483d43f0a/stats/ HTTP/1.1" 200 178
+INFO 2026-02-27 12:17:39,771 basehttp 11592 19016 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 12:17:39,861 basehttp 11592 14596 "GET /api/v1/datasources/?page_size=1000 HTTP/1.1" 200 86
+INFO 2026-02-27 12:17:39,863 basehttp 11592 1836 "GET /api/v1/api-tests/suites/?page_size=1000 HTTP/1.1" 200 86
+INFO 2026-02-27 12:17:39,872 basehttp 11592 1516 "GET /api/v1/reports/?page_size=1000 HTTP/1.1" 200 5126
+INFO 2026-02-27 12:17:39,874 basehttp 11592 9172 "GET /api/v1/scenarios/?page_size=1000 HTTP/1.1" 200 945
+INFO 2026-02-27 12:17:39,920 basehttp 11592 22016 "GET /api/v1/reports/?page_size=5 HTTP/1.1" 200 5126
+INFO 2026-02-27 12:17:40,386 basehttp 11592 20852 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 12:17:40,435 basehttp 11592 4448 "GET /api/v1/reports/ HTTP/1.1" 200 5126
+INFO 2026-02-27 12:17:42,732 basehttp 11592 24004 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 12:17:42,783 basehttp 11592 18960 "GET /api/v1/reports/0c020580-7a4a-42b4-9680-3a4483d43f0a/ HTTP/1.1" 200 775
+INFO 2026-02-27 12:17:42,808 basehttp 11592 27624 "GET /api/v1/reports/0c020580-7a4a-42b4-9680-3a4483d43f0a/stats/ HTTP/1.1" 200 178
+INFO 2026-02-27 12:17:46,768 basehttp 11592 25352 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 12:17:46,831 basehttp 11592 20428 "GET /api/v1/scenarios/ HTTP/1.1" 200 945
+INFO 2026-02-27 12:17:47,661 basehttp 11592 6796 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 12:17:47,700 basehttp 11592 10708 "GET /api/v1/reports/ HTTP/1.1" 200 5126
+INFO 2026-02-27 12:17:48,172 basehttp 11592 1788 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 12:17:48,213 basehttp 11592 10728 "GET /api/v1/scenarios/ HTTP/1.1" 200 945
+INFO 2026-02-27 13:29:20,768 autoreload 2824 10464 Watching for file changes with StatReloader
+WARNING 2026-02-27 13:30:45,292 log 2824 15104 Not Found: /favicon.ico
+WARNING 2026-02-27 13:30:45,297 basehttp 2824 15104 "GET /favicon.ico HTTP/1.1" 404 2937
+INFO 2026-02-27 13:48:19,432 autoreload 23784 29112 Watching for file changes with StatReloader
+INFO 2026-02-27 13:48:29,511 basehttp 23784 4156 "POST /api/v1/users/login/ HTTP/1.1" 200 742
+INFO 2026-02-27 13:48:29,823 basehttp 23784 29220 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 13:48:30,387 basehttp 23784 7032 "GET /api/v1/reports/?page_size=1000 HTTP/1.1" 200 5126
+INFO 2026-02-27 13:48:30,388 basehttp 23784 28880 "GET /api/v1/datasources/?page_size=1000 HTTP/1.1" 200 86
+INFO 2026-02-27 13:48:30,436 basehttp 23784 12304 "GET /api/v1/scenarios/?page_size=1000 HTTP/1.1" 200 945
+INFO 2026-02-27 13:48:30,441 basehttp 23784 25484 "GET /api/v1/api-tests/suites/?page_size=1000 HTTP/1.1" 200 86
+INFO 2026-02-27 13:48:30,490 basehttp 23784 28836 "GET /api/v1/reports/?page_size=5 HTTP/1.1" 200 5126
+INFO 2026-02-27 13:48:31,261 basehttp 23784 25460 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 13:48:31,438 basehttp 23784 3012 "GET /api/v1/scenarios/ HTTP/1.1" 200 945
+INFO 2026-02-27 13:48:34,005 basehttp 23784 11336 "POST /api/v1/reports/ HTTP/1.1" 201 718
+INFO 2026-02-27 13:48:34,101 basehttp 23784 8344 "POST /api/v1/reports/7c651fc0-fe1c-4f68-b365-e5910e7c04cb/run/ HTTP/1.1" 200 98
+INFO 2026-02-27 13:48:34,189 basehttp 23784 11948 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 13:48:34,493 basehttp 23784 2372 "GET /api/v1/reports/ HTTP/1.1" 200 5458
+INFO 2026-02-27 13:48:36,620 basehttp 23784 27240 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 13:48:36,970 basehttp 23784 18604 "GET /api/v1/reports/7c651fc0-fe1c-4f68-b365-e5910e7c04cb/ HTTP/1.1" 200 743
+INFO 2026-02-27 13:48:37,021 basehttp 23784 16424 "GET /api/v1/reports/7c651fc0-fe1c-4f68-b365-e5910e7c04cb/stats/ HTTP/1.1" 200 176
+INFO 2026-02-27 13:48:38,476 basehttp 23784 5004 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 13:48:38,541 basehttp 23784 5656 "GET /api/v1/scenarios/ HTTP/1.1" 200 945
+INFO 2026-02-27 13:48:39,900 basehttp 23784 29556 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 13:48:40,181 basehttp 23784 2192 "GET /api/v1/scenarios/80733195-ddf3-4d11-8946-e66d9ddd468a/ HTTP/1.1" 200 682
+INFO 2026-02-27 13:48:45,090 basehttp 23784 26656 "PUT /api/v1/scenarios/80733195-ddf3-4d11-8946-e66d9ddd468a/ HTTP/1.1" 200 360
+INFO 2026-02-27 13:48:46,589 basehttp 23784 24312 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 13:48:46,665 basehttp 23784 21780 "GET /api/v1/scenarios/ HTTP/1.1" 200 946
+INFO 2026-02-27 13:48:50,075 basehttp 23784 25348 "POST /api/v1/reports/ HTTP/1.1" 201 718
+INFO 2026-02-27 13:48:50,130 basehttp 23784 26148 "POST /api/v1/reports/0fde3987-01fc-4f6c-9983-6f4a171f9edb/run/ HTTP/1.1" 200 98
+INFO 2026-02-27 13:48:50,163 basehttp 23784 10092 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 13:48:50,242 basehttp 23784 1896 "GET /api/v1/reports/ HTTP/1.1" 200 5792
+INFO 2026-02-27 13:48:52,555 basehttp 23784 19644 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 13:48:52,607 basehttp 23784 2204 "GET /api/v1/reports/0fde3987-01fc-4f6c-9983-6f4a171f9edb/ HTTP/1.1" 200 743
+INFO 2026-02-27 13:48:52,650 basehttp 23784 5216 "GET /api/v1/reports/0fde3987-01fc-4f6c-9983-6f4a171f9edb/stats/ HTTP/1.1" 200 176
+INFO 2026-02-27 13:48:57,091 basehttp 23784 12812 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 13:48:57,318 basehttp 23784 4624 "GET /api/v1/reports/0fde3987-01fc-4f6c-9983-6f4a171f9edb/ HTTP/1.1" 200 775
+INFO 2026-02-27 13:48:57,394 basehttp 23784 19596 "GET /api/v1/reports/0fde3987-01fc-4f6c-9983-6f4a171f9edb/stats/ HTTP/1.1" 200 178
+INFO 2026-02-27 13:49:12,431 basehttp 23784 26352 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 13:49:12,591 basehttp 23784 10032 "GET /api/v1/scenarios/ HTTP/1.1" 200 946
+INFO 2026-02-27 13:49:15,689 basehttp 23784 24072 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 13:49:15,757 basehttp 23784 26048 "GET /api/v1/reports/ HTTP/1.1" 200 5794
+INFO 2026-02-27 13:49:18,756 basehttp 23784 18816 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 13:49:18,830 basehttp 23784 5948 "GET /api/v1/reports/0fde3987-01fc-4f6c-9983-6f4a171f9edb/ HTTP/1.1" 200 775
+INFO 2026-02-27 13:49:18,884 basehttp 23784 26748 "GET /api/v1/reports/0fde3987-01fc-4f6c-9983-6f4a171f9edb/stats/ HTTP/1.1" 200 178
+ERROR 2026-02-27 13:49:25,983 log 23784 27776 Internal Server Error: /api/v1/reports/0fde3987-01fc-4f6c-9983-6f4a171f9edb/export/pdf/
+ERROR 2026-02-27 13:49:25,985 basehttp 23784 27776 "GET /api/v1/reports/0fde3987-01fc-4f6c-9983-6f4a171f9edb/export/pdf/ HTTP/1.1" 500 90
+ERROR 2026-02-27 13:49:27,192 log 23784 11896 Internal Server Error: /api/v1/reports/0fde3987-01fc-4f6c-9983-6f4a171f9edb/export/excel/
+ERROR 2026-02-27 13:49:27,197 basehttp 23784 11896 "GET /api/v1/reports/0fde3987-01fc-4f6c-9983-6f4a171f9edb/export/excel/ HTTP/1.1" 500 136
+INFO 2026-02-27 13:49:49,348 basehttp 23784 19532 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 13:49:49,525 basehttp 23784 28488 "GET /api/v1/scenarios/ HTTP/1.1" 200 946
+INFO 2026-02-27 13:49:49,838 basehttp 23784 24788 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 13:49:49,977 basehttp 23784 23896 "GET /api/v1/reports/ HTTP/1.1" 200 5794
+INFO 2026-02-27 13:50:22,461 basehttp 23784 18284 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 13:50:22,546 basehttp 23784 27128 "GET /api/v1/scenarios/ HTTP/1.1" 200 946
+INFO 2026-02-27 13:50:27,428 basehttp 23784 12304 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 13:50:27,565 basehttp 23784 25484 "GET /api/v1/scenarios/80733195-ddf3-4d11-8946-e66d9ddd468a/ HTTP/1.1" 200 683
+INFO 2026-02-27 13:50:40,852 basehttp 23784 23632 "PUT /api/v1/scenarios/80733195-ddf3-4d11-8946-e66d9ddd468a/ HTTP/1.1" 200 361
+INFO 2026-02-27 13:51:33,903 basehttp 23784 27372 "GET /api/v1/users/my-permissions/ HTTP/1.1" 200 188
+INFO 2026-02-27 13:51:34,181 basehttp 23784 2176 "GET /api/v1/environments/ HTTP/1.1" 200 1373
+INFO 2026-02-27 13:51:36,332 basehttp 23784 6524 "GET /api/v1/environments/5a32c112-d17b-4316-b0f2-66c67dde39b7/ HTTP/1.1" 200 271
+INFO 2026-02-27 16:54:09,968 autoreload 15668 30740 Watching for file changes with StatReloader
+INFO 2026-02-27 18:02:03,706 autoreload 3660 31468 Watching for file changes with StatReloader
+WARNING 2026-02-27 18:03:12,068 log 3660 14852 Not Found: /api/v1/
+WARNING 2026-02-27 18:03:12,069 basehttp 3660 14852 "GET /api/v1/ HTTP/1.1" 404 2925
+INFO 2026-02-27 18:05:59,503 basehttp 3660 11132 "POST /api/v1/users/login/ HTTP/1.1" 200 742
+WARNING 2026-02-27 18:05:59,514 log 3660 24104 Forbidden: /api/v1/environments/
+WARNING 2026-02-27 18:05:59,516 basehttp 3660 24104 "POST /api/v1/environments/ HTTP/1.1" 403 49
+INFO 2026-02-27 18:06:42,098 basehttp 3660 17472 "POST /api/v1/users/login/ HTTP/1.1" 200 742
+WARNING 2026-02-27 18:06:42,104 log 3660 29732 Forbidden: /api/v1/environments/
+WARNING 2026-02-27 18:06:42,105 basehttp 3660 29732 "POST /api/v1/environments/ HTTP/1.1" 403 49
+INFO 2026-02-27 18:06:43,150 basehttp 3660 29476 "POST /api/v1/users/login/ HTTP/1.1" 200 742
+WARNING 2026-02-27 18:06:43,160 log 3660 30056 Forbidden: /api/v1/scenarios/
+WARNING 2026-02-27 18:06:43,162 basehttp 3660 30056 "POST /api/v1/scenarios/ HTTP/1.1" 403 49

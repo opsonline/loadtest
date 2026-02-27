@@ -57,6 +57,12 @@ const routes = [
         meta: { title: '环境变量', icon: 'Setting' }
       },
       {
+        path: '/environments/:id/variables',
+        name: 'EnvironmentVariables',
+        component: () => import('@/views/environments/variables.vue'),
+        meta: { title: '变量管理', hidden: true }
+      },
+      {
         path: '/datasources',
         name: 'Datasources',
         component: () => import('@/views/datasources/index.vue'),

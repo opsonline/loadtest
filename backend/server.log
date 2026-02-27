@@ -1,130 +1,20 @@
 INFO Watching for file changes with StatReloader
-INFO "POST /api/v1/users/login/ HTTP/1.1" 200 742
-INFO "POST /api/v1/users/login/ HTTP/1.1" 200 742
-INFO "POST /api/v1/users/login/ HTTP/1.1" 200 742
-INFO "POST /api/v1/users/login/ HTTP/1.1" 200 742
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-INFO "POST /api/v1/users/login/ HTTP/1.1" 200 742
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/scenarios/
-WARNING "GET /api/v1/scenarios/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/reports/
-WARNING "GET /api/v1/reports/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/scenarios/
-WARNING "GET /api/v1/scenarios/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/scenarios/
-WARNING "GET /api/v1/scenarios/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/reports/
-WARNING "GET /api/v1/reports/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/environments/
-WARNING "GET /api/v1/environments/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/scenarios/
-WARNING "GET /api/v1/scenarios/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-INFO "POST /api/v1/users/login/ HTTP/1.1" 200 742
-INFO "POST /api/v1/users/login/ HTTP/1.1" 200 742
-INFO "POST /api/v1/users/login/ HTTP/1.1" 200 742
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-INFO "POST /api/v1/users/login/ HTTP/1.1" 200 742
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/scenarios/
-WARNING "GET /api/v1/scenarios/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/reports/
-WARNING "GET /api/v1/reports/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/environments/
-WARNING "GET /api/v1/environments/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Forbidden: /api/v1/users/my-permissions/
-WARNING "GET /api/v1/users/my-permissions/ HTTP/1.1" 403 27
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-WARNING Unauthorized: /api/v1/users/login/
-WARNING "POST /api/v1/users/login/ HTTP/1.1" 401 50
-INFO "POST /api/v1/users/login/ HTTP/1.1" 200 742
-INFO "POST /api/v1/users/login/ HTTP/1.1" 200 742
 Performing system checks...
 
 System check identified no issues (0 silenced).
-February 22, 2026 - 07:59:01
+February 27, 2026 - 18:02:05
 Django version 4.2.9, using settings 'config.settings'
 Starting development server at http://0.0.0.0:8000/
-Quit the server with CONTROL-C.
+Quit the server with CTRL-BREAK.
 
+WARNING Not Found: /api/v1/
+WARNING "GET /api/v1/ HTTP/1.1" 404 2925
+INFO "POST /api/v1/users/login/ HTTP/1.1" 200 742
+WARNING Forbidden: /api/v1/environments/
+WARNING "POST /api/v1/environments/ HTTP/1.1" 403 49
+INFO "POST /api/v1/users/login/ HTTP/1.1" 200 742
+WARNING Forbidden: /api/v1/environments/
+WARNING "POST /api/v1/environments/ HTTP/1.1" 403 49
+INFO "POST /api/v1/users/login/ HTTP/1.1" 200 742
+WARNING Forbidden: /api/v1/scenarios/
+WARNING "POST /api/v1/scenarios/ HTTP/1.1" 403 49

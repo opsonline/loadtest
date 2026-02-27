@@ -16,6 +16,12 @@
         <el-form-item label="场景描述">
           <el-input v-model="form.description" type="textarea" placeholder="输入场景描述" />
         </el-form-item>
+        <el-form-item label="目标Host">
+          <el-input v-model="form.target_host" placeholder="https://www.example.com">
+            <template #prepend>Host</template>
+          </el-input>
+          <div class="form-tip">压测目标服务器地址，留空则使用默认值</div>
+        </el-form-item>
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label="默认用户数">
@@ -133,6 +139,7 @@ const activeRequests = ref([0])
 const form = ref({
   name: '',
   description: '',
+  target_host: '',
   default_users: 10,
   default_spawn_rate: 1,
   default_duration: 60,
@@ -153,7 +160,6 @@ onMounted(() => {
 const fetchScenario = async (id) => {
   try {
     const data = await scenarioApi.detail(id)
-    // 转换 headers 为文本
     const requests = (data.requests || []).map(req => ({
       ...req,
       headersText: req.headers ? JSON.stringify(req.headers, null, 2) : ''
@@ -161,6 +167,7 @@ const fetchScenario = async (id) => {
     form.value = {
       name: data.name,
       description: data.description || '',
+      target_host: data.target_host || '',
       default_users: data.default_users || 10,
       default_spawn_rate: data.default_spawn_rate || 1,
       default_duration: data.default_duration || 60,
@@ -235,6 +242,7 @@ const saveScenario = async () => {
   const data = {
     name: form.value.name,
     description: form.value.description,
+    target_host: form.value.target_host,
     default_users: form.value.default_users,
     default_spawn_rate: form.value.default_spawn_rate,
     default_duration: form.value.default_duration,
@@ -304,5 +312,11 @@ const saveScenario = async () => {
 
 .delete-icon:hover {
   color: #f89898;
+}
+
+.form-tip {
+  font-size: 12px;
+  color: #909399;
+  margin-top: 4px;
 }
 </style>

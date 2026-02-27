@@ -45,17 +45,17 @@
             </div>
           </template>
           <div class="env-description">{{ env.description || '暂无描述' }}</div>
-          <div class="env-stats">
+<div class="env-stats">
             <el-tag type="info">{{ env.variable_count }} 个变量</el-tag>
           </div>
           <div class="env-actions">
-            <el-button type="primary" link @click="manageVariables(env)">管理变量</el-button>
+            <el-button type="primary" link @click="goToVariablesPage(env)">管理变量</el-button>
           </div>
         </el-card>
       </el-col>
     </el-row>
 
-    <!-- 创建/编辑环境对话框 -->
+<!-- 创建/编辑环境对话框 -->
     <el-dialog v-model="showCreateDialog" :title="isEdit ? '编辑环境' : '创建环境'" width="500px">
       <el-form :model="envForm" label-width="100px">
         <el-form-item label="环境名称">
@@ -73,58 +73,24 @@
         <el-button type="primary" @click="saveEnvironment" :loading="saving">保存</el-button>
       </template>
     </el-dialog>
-
-    <!-- 变量管理对话框 -->
-    <el-dialog v-model="showVariableDialog" title="变量管理" width="700px">
-      <div class="variable-actions">
-        <el-button type="primary" size="small" @click="addVariable">
-          <el-icon><Plus /></el-icon>添加变量
-        </el-button>
-      </div>
-      <el-table :data="currentVariables" style="width: 100%">
-        <el-table-column prop="name" label="变量名" width="150" />
-        <el-table-column prop="value" label="变量值">
-          <template #default="{ row }">
-            <span v-if="row.var_type === 'secret'">******</span>
-            <span v-else>{{ row.value }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="var_type" label="类型" width="100">
-          <template #default="{ row }">
-            <el-tag size="small">{{ getVarTypeText(row.var_type) }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="150">
-          <template #default="{ row, $index }">
-            <el-button link type="primary" @click="editVariable(row, $index)">编辑</el-button>
-            <el-button link type="danger" @click="deleteVariable($index)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <template #footer>
-        <el-button @click="showVariableDialog = false">关闭</el-button>
-        <el-button type="primary" @click="saveVariables" :loading="savingVariables">保存变量</el-button>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, More, Upload, Download } from '@element-plus/icons-vue'
 import { environmentApi } from '@/api'
 import dayjs from 'dayjs'
 
+const router = useRouter()
 const loading = ref(false)
 const environments = ref([])
 const showCreateDialog = ref(false)
-const showVariableDialog = ref(false)
 const isEdit = ref(false)
 const saving = ref(false)
-const savingVariables = ref(false)
 const currentEnv = ref(null)
-const currentVariables = ref([])
 const importInput = ref(null)
 
 const envForm = ref({
@@ -207,54 +173,8 @@ const setDefault = async (env) => {
   }
 }
 
-const manageVariables = async (env) => {
-  currentEnv.value = env
-  // 获取环境详情以获取变量列表
-  try {
-    const detail = await environmentApi.get(env.id)
-    currentVariables.value = detail.variables || []
-  } catch (error) {
-    console.error('Failed to fetch environment details:', error)
-    currentVariables.value = []
-  }
-  showVariableDialog.value = true
-}
-
-const addVariable = () => {
-  currentVariables.value.push({
-    name: '',
-    value: '',
-    var_type: 'text',
-    scope: 'global'
-  })
-}
-
-const editVariable = (row, index) => {
-  // 编辑逻辑
-}
-
-const deleteVariable = (index) => {
-  currentVariables.value.splice(index, 1)
-}
-
-const saveVariables = async () => {
-  if (!currentEnv.value) return
-  
-  savingVariables.value = true
-  try {
-    await environmentApi.update(currentEnv.value.id, {
-      ...currentEnv.value,
-      variables: currentVariables.value
-    })
-    ElMessage.success('保存成功')
-    showVariableDialog.value = false
-    fetchEnvironments()
-  } catch (error) {
-    console.error('Save variables error:', error)
-    ElMessage.error(error.message || '保存失败')
-  } finally {
-    savingVariables.value = false
-  }
+const goToVariablesPage = (env) => {
+  router.push(`/environments/${env.id}/variables`)
 }
 
 const importEnvironments = () => {
@@ -399,10 +319,6 @@ const exportEnvironments = async () => {
 }
 
 .env-stats {
-  margin-bottom: 15px;
-}
-
-.variable-actions {
   margin-bottom: 15px;
 }
 </style>
